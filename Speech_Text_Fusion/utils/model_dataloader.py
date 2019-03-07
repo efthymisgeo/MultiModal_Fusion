@@ -54,6 +54,14 @@ def pickle_save(fname, data):
     filehandler.close()
     print('saved', fname, os.getcwd(), os.listdir())
 
+def pickle_load(fname):
+    filepath = os.path.abspath(os.path.join('np_features', fname))
+    filehandler = open(filepath, 'rb')
+    data = pickle.load(filehandler)
+    filehandler.close()
+    print('Loaded Succesfully ', fname)
+    return(data)
+
 def h5_to_numpy(h5_feats):
     '''function that gets an h5py dict as input
     and converts it into a numpy array'''
@@ -164,3 +172,11 @@ if __name__ == "__main__":
     print("glove mean len is ", glove_mean/counter)
     print('cov_max len', cov_max)
     print("cov mean len is ", cov_mean/counter)
+    
+    dataset = { }
+    np_path = os.path.abspath('np_features')
+    for fname in os.listdir(np_path):
+        data = pickle_load(fname)
+        dataset[fname] = data
+
+    print(dataset['Opinion Segment Labels'])
