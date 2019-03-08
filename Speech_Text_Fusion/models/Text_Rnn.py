@@ -23,6 +23,11 @@ class Text_RNN(nn.Module):
             attn_layers (int):
             attn_dropout (float):
             attn_nonlinearity (str):
+        Outputs:
+            returns 3 tensors
+            logits [B,*] : *=1 for binary, *=5 for 5class
+            attn_representations (all hidden states) [B,50,128]
+            attn_scores (weights) [B,50]
         '''
 
         super(Text_RNN, self).__init__()
@@ -71,4 +76,4 @@ class Text_RNN(nn.Module):
         # project to #classes
         logits = self.dense(attn_representations).view(-1,1)
 
-        return logits, attn_scores
+        return logits, attn_representations, attn_scores
