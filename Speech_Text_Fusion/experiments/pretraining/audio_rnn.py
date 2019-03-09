@@ -78,10 +78,10 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         train_text_rnn(epoch, train_loader, model, criterion, optimizer)
 
         # evaluate performance on  test
-        train_loss, (y_train_gold, y_train_pred) = eval_text_rnn(train_loader,
+        train_loss, (y_train_pred, y_train_gold) = eval_text_rnn(train_loader,
                                                                  model, criterion)
         # evaluate performanve on valid set
-        valid_loss, (y_valid_gold, y_valid_pred) = eval_text_rnn(valid_loader,
+        valid_loss, (y_valid_pred, y_valid_gold) = eval_text_rnn(valid_loader,
                                                                  model, criterion)
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
         print('Accuracy at epoch ', epoch,
@@ -93,7 +93,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         batch_accuracies.append(batch_accuracy)
 
     # evaluate performance on test set
-    test_loss, (y_test_gold, y_test_pred) = eval_text_rnn(test_loader,
+    test_loss, (y_test_pred, y_test_gold) = eval_text_rnn(test_loader,
                                                           model, criterion)
 
 
@@ -101,7 +101,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     ##############################################################################
     # Printing Learning Curves
     ##############################################################################
-    learn_curves(test_losses, train_losses)
+    learn_curves(valid_losses, train_losses)
 
     return (model, batch_accuracies)
 

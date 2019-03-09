@@ -60,7 +60,7 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     criterion = nn.BCEWithLogitsLoss()
 
     train_losses = []
-    test_losses = []
+    valid_losses = []
 
     batch_accuracies = []
 
@@ -76,27 +76,30 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     for epoch in range(1, EPOCHS + 1):
         # train model
         train_text_rnn(epoch, train_loader, model, criterion, optimizer)
-        # evaluate performanve on valid set
-        train_loss, (y_train_gold, y_train_pred) = eval_text_rnn(valid_loader,
+
+        # evaluate performance on  test
+        train_loss, (y_train_pred, y_train_gold) = eval_text_rnn(train_loader,
                                                                  model, criterion)
-
-        # evaluate performance on test set
-        test_loss, (y_test_gold, y_test_pred) = eval_text_rnn(test_loader,
-                                                              model, criterion)
-
+        # evaluate performanve on valid set
+        valid_loss, (y_valid_pred, y_valid_gold) = eval_text_rnn(valid_loader,
+                                                                 model, criterion)
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
-        print('Accuracy at epoch ', epoch, 'is ', batch_accuracy)
+        print('Accuracy at epoch ', epoch,
+              'is ', batch_accuracy)
 
-        test_losses.append(test_loss)
+        valid_losses.append(valid_loss)
         train_losses.append(train_loss)
 
         batch_accuracies.append(batch_accuracy)
 
+    # evaluate performance on test set
+    test_loss, (y_test_pred, y_test_gold) = eval_text_rnn(test_loader,
+                                                          model, criterion)
+
     ##############################################################################
     # Printing Learning Curves
     ##############################################################################
-    learn_curves(test_losses, train_losses)
+    learn_curves(valid_losses, train_losses)
 
-    return(model, batch_accuracies)
-
+    return (model, batch_accuracies)
 

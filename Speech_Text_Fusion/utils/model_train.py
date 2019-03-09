@@ -1,7 +1,25 @@
 import math
 import sys
 import torch
+import torch.nn.functional as F
 from config import DEVICE
+
+def to_numpy(tensor, task='binary'):
+    if task == 'binary':
+        pred = tensor.view(-1).detach().numpy()
+    elif task == '5 class':
+        # fix me
+        pass
+    else:
+        # regression task
+        # fix me
+        pass
+    return(pred)
+
+def flatten_list(l):
+    flat_list = [item for sublist in l for item in sublist]
+    return(flat_list)
+
 
 def progress(loss, epoch, batch, batch_size, dataset_size):
     """
@@ -64,6 +82,7 @@ def eval_text_rnn(dataloader, model, loss_function):
     model.eval()
     running_loss = 0.0
 
+
     y_predicted = []  # the predicted labels
     y = []  # the gold labels
     # we don't want to keep gradients so everything under torch.no_grad()
@@ -72,17 +91,24 @@ def eval_text_rnn(dataloader, model, loss_function):
             _, (glove, lengths), labels = batch
             lengths, perm = torch.sort(lengths, descending=True)
             glove = glove[perm].float()
-            labels = labels[perm].view(-1,1).float()
+            labels = labels[perm].view(-1,1)
             y_hat, _, _ = model(glove, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time
-            loss = loss_function(y_hat, labels)
+            loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
+            probs = F.softmax(y_hat, dim=1)
             #sntmnt_class = torch.argmax(y_hat, dim=1)
-            sntmnt_class = torch.ge(y_hat,0.5)
+            sntmnt_class = torch.ge(probs,0.5).int()
             # collect the predictions, gold labels and batch loss
-            y_predicted.append(sntmnt_class)
+            pred = to_numpy(sntmnt_class)
+            labels = to_numpy(labels.int())
+
+            y_predicted.append(pred)
             y.append(labels)
 
             running_loss += loss.item()
+
+    y_predicted = flatten_list(y_predicted)
+    y = flatten_list(y)
 
     return running_loss / index, (y_predicted, y)
