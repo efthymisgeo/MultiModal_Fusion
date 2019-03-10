@@ -61,7 +61,7 @@ def synthetic_dataset(N):
 ## learning curves plot
 #################################
 
-
+'''
 def learn_curves(test, valid):
     plt.figure()
     plt.title("Learning Curves")
@@ -71,5 +71,8 @@ def learn_curves(test, valid):
     plt.plot(valid, 'g', label='learning curve')
     plt.legend()
     plt.show()
+
+'''
+
 
 ###############################

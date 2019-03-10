@@ -1,7 +1,7 @@
 from torch import torch, nn
 from torch.optim import Adam
 
-from config import DEVICE, learn_curves
+from config import DEVICE #, learn_curves
 
 from models.Text_Rnn import Text_RNN
 
@@ -101,7 +101,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     ##############################################################################
     # Printing Learning Curves
     ##############################################################################
-    learn_curves(valid_losses, train_losses)
+    #learn_curves(valid_losses, train_losses)
 
     return (model, batch_accuracies)
 

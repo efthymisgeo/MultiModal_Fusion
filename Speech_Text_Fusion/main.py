@@ -14,6 +14,7 @@ from utils.model_dataloader import MOSI_Dataset
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
 
+print(DEVICE)
 
 ###############################################
 # Load Task and synthetic dataset
