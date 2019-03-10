@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="1ba76179-9b75-4503-a9cd-3c50f2b50cd2" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/text_rnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/text_rnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="1ba76179-9b75-4503-a9cd-3c50f2b50cd2" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,7 +9,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.36877322">
+    <splitter split-orientation="horizontal" split-proportion="0.4275093">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
@@ -39,10 +33,10 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="false">
+          <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/models/Text_Rnn.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1088">
+                <state relative-caret-position="621">
                   <caret line="70" column="40" selection-start-line="70" selection-start-column="40" selection-end-line="70" selection-end-column="40" />
                   <folding>
                     <element signature="e#0#27#0" expanded="true" />
@@ -51,7 +45,7 @@
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/config.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="1152">
@@ -90,7 +84,7 @@
         </leaf>
       </split-first>
       <split-second>
-        <splitter split-orientation="horizontal" split-proportion="0.42857143">
+        <splitter split-orientation="horizontal" split-proportion="0.6">
           <split-first>
             <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
               <file pinned="false" current-in-tab="false">
@@ -242,7 +236,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="10" />
     <option name="y" value="80" />
     <option name="width" value="1356" />
@@ -430,7 +424,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="34" width="1366" height="734" extended-state="7" />
+    <frame x="0" y="34" width="1366" height="734" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.08624535" />
@@ -833,16 +827,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/models/Text_Rnn.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1088">
-          <caret line="70" column="40" selection-start-line="70" selection-start-column="40" selection-end-line="70" selection-end-column="40" />
-          <folding>
-            <element signature="e#0#27#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_dataloader.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -945,6 +929,16 @@
           <caret line="16" column="12" selection-start-line="16" selection-start-column="12" selection-end-line="16" selection-end-column="12" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/models/Text_Rnn.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="621">
+          <caret line="70" column="40" selection-start-line="70" selection-start-column="40" selection-end-line="70" selection-end-column="40" />
+          <folding>
+            <element signature="e#0#27#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -87,9 +87,9 @@ def MOSI_Dataset():
         acoustic_fts.append(h5_to_numpy(covarep[key]['features']))
         targets.append(h5_to_numpy(opinions[key]['features']))
 
-    mosi_dataset = {"Audio Features": covarep,
-                    "Word Embeddings": glove,
-                    "Opinion Labels": opinions}
+    mosi_dataset = {"Audio Features": acoustic_fts,
+                    "Word Embeddings": word_embd,
+                    "Opinion Labels": targets}
 
     return(mosi_dataset)
 
