@@ -9,6 +9,7 @@ from torch.utils.data import random_split
 from config import DEVICE, synthetic_dataset
 
 from utils.pytorch_dl import MModalDataset
+from utils.model_dataloader import MOSI_Dataset
 
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
@@ -20,11 +21,16 @@ from experiments.pretraining.text_rnn import text_rnn_pretraining
 N = 1000 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-toy_data = synthetic_dataset(N)
+#toy_data = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
-mm_dset = MModalDataset(toy_data, task, approach)
+
+# load MOSI
+dataset = MOSI_Dataset()
+
+# load mosi
+mm_dset = MModalDataset(dataset, task, approach)
 
 kke = mm_dset[1]
 pasok = len(mm_dset)

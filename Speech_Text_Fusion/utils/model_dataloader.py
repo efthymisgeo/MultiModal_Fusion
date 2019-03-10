@@ -5,7 +5,6 @@ from os.path import isfile, join
 import pickle
 import numpy as np
 
-
 def SearchDictKeys(dict, name_list):
     short_names = {}
     for csd_name in name_list:
@@ -68,6 +67,36 @@ def h5_to_numpy(h5_feats):
     np_arr = np.zeros(h5_feats.shape)
     h5_feats.read_direct(np_arr)
     return np_arr
+
+def MOSI_Dataset():
+    aligned_dataset = Load_Aligned_Data()
+    print("Aligned Dataset Succesfully Loaded")
+
+    modals = ['glove_vectors', 'COVAREP', 'Opinion Segment Labels']
+
+    glove = aligned_dataset.computational_sequences[modals[0] + '.csd'].data
+    covarep = aligned_dataset.computational_sequences[modals[1] + '.csd'].data
+    opinions = aligned_dataset.computational_sequences[modals[2] + '.csd'].data
+
+    keys = glove.keys()
+    # empty list within which features will be stored
+    word_embd, acoustic_fts, targets = [], [], []
+
+    for key in keys:
+        word_embd.append(h5_to_numpy(glove[key]['features']))
+        acoustic_fts.append(h5_to_numpy(covarep[key]['features']))
+        targets.append(h5_to_numpy(opinions[key]['features']))
+
+    mosi_dataset = {"Audio Features": covarep,
+                    "Word Embeddings": glove,
+                    "Opinion Labels": opinions}
+
+    return(mosi_dataset)
+
+
+
+
+
 
 if __name__ == "__main__":
     # execute only if run as a script
