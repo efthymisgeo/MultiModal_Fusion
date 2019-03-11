@@ -84,8 +84,10 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         valid_loss, (y_valid_pred, y_valid_gold) = eval_text_rnn(valid_loader,
                                                                  model, criterion)
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
-        print('Accuracy at epoch ', epoch,
+        print('Train Accuracy at epoch ', epoch,
               'is ', batch_accuracy)
+        valid_accuracy = accuracy_score(y_valid_gold, y_valid_pred)
+        print('Valid Accuracy at epoch ', epoch, 'is ', valid_accuracy)
 
         valid_losses.append(valid_loss)
         train_losses.append(train_loss)

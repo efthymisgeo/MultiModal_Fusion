@@ -96,7 +96,7 @@ def eval_text_rnn(dataloader, model, loss_function):
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
-            probs = F.softmax(y_hat, dim=1)
+            probs = F.sigmoid(y_hat)
             #sntmnt_class = torch.argmax(y_hat, dim=1)
             sntmnt_class = torch.ge(probs,0.5).int()
             # collect the predictions, gold labels and batch loss
