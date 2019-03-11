@@ -6,7 +6,7 @@ from config import DEVICE
 
 def to_numpy(tensor, task='binary'):
     if task == 'binary':
-        pred = tensor.view(-1).detach().numpy()
+        pred = tensor.view(-1).detach().cpu().numpy()
     elif task == '5 class':
         # fix me
         pass
@@ -96,7 +96,7 @@ def eval_text_rnn(dataloader, model, loss_function):
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
-            probs = F.sigmoid(y_hat)
+            probs = torch.sigmoid(y_hat)
             #sntmnt_class = torch.argmax(y_hat, dim=1)
             sntmnt_class = torch.ge(probs,0.5).int()
             # collect the predictions, gold labels and batch loss

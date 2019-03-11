@@ -23,13 +23,13 @@ print(DEVICE)
 N = 1000 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-dataset = synthetic_dataset(N)
+#dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-#dataset = MOSI_Dataset()
+dataset = MOSI_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -102,7 +102,7 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Audio/Text RNN Models
 ########################################
-EPOCHS = 5
+EPOCHS = 50
 lr = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
