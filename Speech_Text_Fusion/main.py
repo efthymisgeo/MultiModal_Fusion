@@ -9,6 +9,7 @@ from torch.utils.data import random_split
 from config import DEVICE, synthetic_dataset
 
 from utils.pytorch_dl import MModalDataset
+from utils.torch_dataloader import MultiModalDataset
 from utils.model_dataloader import MOSI_Dataset
 
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
@@ -22,16 +23,16 @@ print(DEVICE)
 N = 1000 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#toy_data = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Dataset()
+#dataset = MOSI_Dataset()
 
 # load mosi
-mm_dset = MModalDataset(dataset, task, approach)
+mm_dset = MultiModalDataset(dataset, task, approach)
 
 kke = mm_dset[1]
 pasok = len(mm_dset)
@@ -101,7 +102,7 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Audio/Text RNN Models
 ########################################
-EPOCHS = 50
+EPOCHS = 5
 lr = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 

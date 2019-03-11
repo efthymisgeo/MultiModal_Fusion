@@ -4,7 +4,7 @@ from torch.utils.data.dataset import Dataset
 
 from utils.Zero_Padder import ZeroPadding
 
-from config import DEVICE
+from config import DEVICE, MAX_LEN
 
 
 
@@ -13,8 +13,8 @@ class MModalDataset(Dataset):
                  approach='sequential'):
         ''' we take a dictionary input
         mmodal_dict:
-            'Audio Features' - covarep list of list of (1,5035) np.arrays
-            'Word Embeddings' - glove list of  (*,300) np.arrays
+            'Audio Features' - covarep list of (*,5033) np.arrays
+            'Word Embeddings' - glove list of  (*,5033) np.arrays
             'Opinion Labels' - opinion list of (1,1) np.arrays
         OUTPUT:
             (covarep, glove, opinions)
