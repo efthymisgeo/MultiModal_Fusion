@@ -97,11 +97,8 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     # evaluate performance on test set
     test_loss, (y_test_pred, y_test_gold) = eval_text_rnn(test_loader,
                                                           model, criterion)
+    print("Test Set Accuracy is ", accuracy_score(y_test_gold,
+                                                  y_test_pred))
 
-    ##############################################################################
-    # Printing Learning Curves
-    ##############################################################################
-    learn_curves(valid_losses, train_losses)
-
-    return (model, batch_accuracies)
+    return (model, batch_accuracies, valid_losses, train_losses)
 

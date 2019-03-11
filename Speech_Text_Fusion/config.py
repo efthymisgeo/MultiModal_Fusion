@@ -1,5 +1,6 @@
+import os
 import torch
-
+import pickle
 import numpy as np
 from random import randint
 
@@ -56,23 +57,37 @@ def synthetic_dataset(N):
     return (dataset)
 ##############################
 
-
-
-
 #################################
 ## learning curves plot
 #################################
-
-
-def learn_curves(test, valid):
+def learn_curves(valid, train):
     plt.figure()
     plt.title("Learning Curves")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
-    plt.plot(test, 'r', label='test curve')
-    plt.plot(valid, 'g', label='learning curve')
+    plt.plot(valid, 'r', label='validation curve')
+    plt.plot(train, 'g', label='training curve')
     plt.legend()
     plt.show()
-
-
 ###############################
+
+#####################################
+# save dictionaries
+#####################################
+
+def pickle_save(fname, data):
+    '''function that saves metadata dictionary'''
+    filename = os.path.join('rnn_metadata', fname)
+    save_dir = os.path.abspath(filename)
+    filehandler = open(save_dir, "wb")
+    pickle.dump(data, filehandler)
+    filehandler.close()
+    print('saved', fname, os.getcwd(), os.listdir())
+
+def pickle_load(fname):
+    filepath = os.path.abspath(os.path.join('rnn_metadata', fname))
+    filehandler = open(filepath, 'rb')
+    data = pickle.load(filehandler)
+    filehandler.close()
+    print('Loaded Succesfully ', fname)
+    return(data)

@@ -6,7 +6,7 @@ from random import randint
 
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-from config import DEVICE, synthetic_dataset
+from config import DEVICE, synthetic_dataset, learn_curves, pickle_save, pickle_load
 
 from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
@@ -23,13 +23,13 @@ print(DEVICE)
 N = 1000 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Dataset()
+# dataset = MOSI_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -100,14 +100,49 @@ audio_hyperparameters = [input_size, hidden_size,
                         attn_nonlinearity, task]
 
 #########################################
-# Training Audio/Text RNN Models
+# Training Text RNN Models
 ########################################
-EPOCHS = 50
-lr = 0.0001
+EPOCHS_t = 1
+lr_t = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
-text_rnn, text_accuracies = text_rnn_pretraining(data_loaders, text_hyperparameters,
-                                                 EPOCHS, lr)
+text_rnn, text_accuracies, valid_losses, train_losses\
+    = text_rnn_pretraining(data_loaders,
+                           text_hyperparameters,
+                           EPOCHS_t, lr_t)
+
+text_rnn_metadata = {"model": text_rnn,
+                 "accuracy": text_accuracies,
+                 "valid_loss": valid_losses,
+                 "train_loss": train_losses}
+# Printing Learning Curves
+#learn_curves(valid_losses, train_losses)
+
+# Training Audio RNN Model
+EPOCHS_a = 1
+lr_a = 0.0001
+data_loaders = (train_loader, valid_loader, test_loader)
+
+audio_rnn, audio_accuracies, valid_losses, train_losses\
+    = audio_rnn_pretraining(data_loaders,
+                            audio_hyperparameters,
+                            EPOCHS_a, lr_a)
+# Printing Learning Curves
+# learn_curves(valid_losses, train_losses)
+
+audio_rnn_metadata = {"model": audio_rnn,
+                      "accuracy": audio_accuracies,
+                      "valid_loss": valid_losses,
+                      "train_loss": train_losses}
+
+# save metadata dictionaries
+pickle_save("text_rnn", text_rnn_metadata)
+pickle_save("audio_rnn", audio_rnn_metadata)
+
+# load metadata dicts
+#rnn_path = os.path.abspath("rnn_metadata")
+#text_rnn_data = pickle_load(os.path.join(rnn_path,"text_rnn"))
+#audio_rnn_data = pickle_load(os.path.join(rnn_path,"audio_rnn"))
 
 
 
