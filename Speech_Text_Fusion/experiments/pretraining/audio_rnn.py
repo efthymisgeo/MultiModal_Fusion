@@ -51,12 +51,12 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     FUNCTION:
         trains model for given number of EPOCHS
     '''
+    # model = audio_rnn
+    audio_rnn = Text_RNN(*rnn_params)
+    audio_rnn.to(DEVICE)
+    print(audio_rnn)
 
-    model = Text_RNN(*rnn_params)
-    model.to(DEVICE)
-    print(model)
-
-    optimizer = Adam(model.parameters(), lr=learning_rate)
+    optimizer = Adam(audio_rnn.parameters(), lr=learning_rate)
     criterion = nn.BCEWithLogitsLoss()
 
     train_losses = []
@@ -75,7 +75,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
     for epoch in range(1, EPOCHS + 1):
         # train model
-        train_audio_rnn(epoch, train_loader, model, criterion, optimizer)
+        train_audio_rnn(epoch, train_loader, audio_rnn, criterion, optimizer)
 
         # evaluate performance on  test
         train_loss, (y_train_pred, y_train_gold) = eval_audio_rnn(train_loader,

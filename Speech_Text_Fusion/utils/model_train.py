@@ -123,7 +123,7 @@ def train_audio_rnn(_epoch, dataloader, model, loss_function, optimizer):
     running_loss = 0.0
 
     for index, batch in enumerate(dataloader,1):
-        (covarep, lengths), _, labels = batch
+        (covarep, lengths), (_, _), labels = batch
         # we assume batch already in correct device through dataloader
 
         # sort fetaures per length for packing
@@ -165,7 +165,7 @@ def eval_audio_rnn(dataloader, model, loss_function):
         for index, batch in enumerate(dataloader):
             (covarep, lengths), _, labels = batch
             lengths, perm = torch.sort(lengths, descending=True)
-            covarep = covarep[perm].float()
+            covarep =covarep[perm].float()
             labels = labels[perm].view(-1,1)
             y_hat, _, _ = model(covarep, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time

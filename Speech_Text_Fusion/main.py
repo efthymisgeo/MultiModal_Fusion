@@ -20,7 +20,7 @@ print(DEVICE)
 ###############################################
 # Load Task and synthetic dataset
 ###############################################
-N = 1000 # instances of synthetic dataset
+N = 100 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
 dataset = synthetic_dataset(N)
@@ -102,6 +102,7 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Text RNN Models
 ########################################
+'''
 EPOCHS_t = 1
 lr_t = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
@@ -117,10 +118,12 @@ text_rnn_metadata = {"model": text_rnn,
                  "train_loss": train_losses}
 # Printing Learning Curves
 #learn_curves(valid_losses, train_losses)
+'''
+
 
 # Training Audio RNN Model
-EPOCHS_a = 1
-lr_a = 0.0001
+EPOCHS_a = 10
+lr_a = 0.001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
@@ -136,7 +139,7 @@ audio_rnn_metadata = {"model": audio_rnn,
                       "train_loss": train_losses}
 
 # save metadata dictionaries
-pickle_save("text_rnn", text_rnn_metadata)
+#pickle_save("text_rnn", text_rnn_metadata)
 pickle_save("audio_rnn", audio_rnn_metadata)
 
 # load metadata dicts
