@@ -68,6 +68,38 @@ def h5_to_numpy(h5_feats):
     h5_feats.read_direct(np_arr)
     return np_arr
 
+def MOSI_Binary_Dataset():
+    aligned_dataset = Load_Aligned_Data()
+    print("Aligned Dataset Succesfully Loaded")
+
+    modals = ['glove_vectors', 'COVAREP', 'Opinion Segment Labels']
+
+    glove = aligned_dataset.computational_sequences[modals[0] + '.csd'].data
+    covarep = aligned_dataset.computational_sequences[modals[1] + '.csd'].data
+    opinions = aligned_dataset.computational_sequences[modals[2] + '.csd'].data
+
+    keys = glove.keys()
+    # empty list within which features will be stored
+    word_embd, acoustic_fts, targets = [], [], []
+
+    # kick-out unsigned-neutral samples
+    bin_keys = []
+    for key in keys:
+        target = h5_to_numpy(opinions[key]['features'])
+        if np.sign(target) != 0:
+            bin_keys.append(key)
+
+    for key in bin_keys:
+        word_embd.append(h5_to_numpy(glove[key]['features']))
+        acoustic_fts.append(h5_to_numpy(covarep[key]['features']))
+        targets.append(h5_to_numpy(opinions[key]['features']))
+
+    mosi_dataset = {"Audio Features": acoustic_fts,
+                    "Word Embeddings": word_embd,
+                    "Opinion Labels": targets}
+
+    return(mosi_dataset)
+
 def MOSI_Dataset():
     aligned_dataset = Load_Aligned_Data()
     print("Aligned Dataset Succesfully Loaded")

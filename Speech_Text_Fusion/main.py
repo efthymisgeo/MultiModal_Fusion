@@ -10,7 +10,7 @@ from config import DEVICE, synthetic_dataset, learn_curves, pickle_save, pickle_
 
 from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
-from utils.model_dataloader import MOSI_Dataset
+from utils.model_dataloader import MOSI_Dataset, MOSI_Binary_Dataset
 
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
@@ -29,7 +29,7 @@ dataset = synthetic_dataset(N)
 ###############################################
 
 # load MOSI
-# dataset = MOSI_Dataset()
+# dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
