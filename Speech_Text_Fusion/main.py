@@ -128,7 +128,7 @@ text_rnn_metadata = {"model": text_rnn,
 
 # Training Audio RNN Model
 EPOCHS_a = 100
-lr_a = 0.001
+lr_a = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
