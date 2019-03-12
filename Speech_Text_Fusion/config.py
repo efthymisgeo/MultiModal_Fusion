@@ -57,19 +57,6 @@ def synthetic_dataset(N):
     return (dataset)
 ##############################
 
-#################################
-## learning curves plot
-#################################
-def learn_curves(valid, train):
-    plt.figure()
-    plt.title("Learning Curves")
-    plt.xlabel("Epochs")
-    plt.ylabel("Loss")
-    plt.plot(valid, 'r', label='validation curve')
-    plt.plot(train, 'g', label='training curve')
-    plt.legend()
-    plt.show()
-###############################
 
 #####################################
 # save dictionaries
@@ -84,8 +71,8 @@ def pickle_save(fname, data):
     filehandler.close()
     print('saved', fname, os.getcwd(), os.listdir())
 
-def pickle_load(fname):
-    filepath = os.path.abspath(os.path.join('rnn_metadata', fname))
+def pickle_load(path, fname):
+    filepath = os.path.join(path, fname)
     filehandler = open(filepath, 'rb')
     data = pickle.load(filehandler)
     filehandler.close()

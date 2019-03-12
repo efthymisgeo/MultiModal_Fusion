@@ -6,7 +6,7 @@ from random import randint
 
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-from config import DEVICE, synthetic_dataset, learn_curves, pickle_save, pickle_load
+from config import DEVICE, synthetic_dataset, pickle_save, pickle_load
 
 from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
@@ -135,7 +135,7 @@ audio_rnn, audio_accuracies, valid_losses, train_losses\
 # Printing Learning Curves
 # learn_curves(valid_losses, train_losses)
 
-audio_rnn_metadata = {"model": audio_rnn,
+audio_rnn_metadata = {"model": audio_rnn.parameters(),
                       "accuracy": audio_accuracies,
                       "valid_loss": valid_losses,
                       "train_loss": train_losses}
