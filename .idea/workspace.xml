@@ -3,6 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="1ba76179-9b75-4503-a9cd-3c50f2b50cd2" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/rnn_metadata/audio_rnn" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/rnn_metadata/audio_rnn" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py" beforeDir="false" afterPath="$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -91,8 +94,8 @@
                   <file pinned="false" current-in-tab="true">
                     <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/main.py">
                       <provider selected="true" editor-type-id="text-editor">
-                        <state relative-caret-position="424">
-                          <caret line="31" column="24" selection-start-line="31" selection-start-column="24" selection-end-line="31" selection-end-column="24" />
+                        <state relative-caret-position="486">
+                          <caret line="155" lean-forward="true" selection-start-line="155" selection-end-line="155" />
                           <folding>
                             <element signature="e#0#9#0" expanded="true" />
                           </folding>
@@ -131,8 +134,8 @@
                   <file pinned="false" current-in-tab="true">
                     <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py">
                       <provider selected="true" editor-type-id="text-editor">
-                        <state relative-caret-position="696">
-                          <caret line="88" column="33" selection-start-line="88" selection-start-column="33" selection-end-line="88" selection-end-column="33" />
+                        <state relative-caret-position="438">
+                          <caret line="107" column="21" selection-start-line="107" selection-start-column="21" selection-end-line="107" selection-end-column="21" />
                           <folding>
                             <element signature="e#0#27#0" expanded="true" />
                           </folding>
@@ -149,8 +152,8 @@
               <file pinned="false" current-in-tab="true">
                 <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py">
                   <provider selected="true" editor-type-id="text-editor">
-                    <state relative-caret-position="2197">
-                      <caret line="140" selection-start-line="140" selection-end-line="140" />
+                    <state relative-caret-position="312">
+                      <caret line="142" column="24" lean-forward="true" selection-start-line="142" selection-start-column="24" selection-end-line="142" selection-end-column="24" />
                       <folding>
                         <element signature="e#0#11#0" expanded="true" />
                       </folding>
@@ -264,14 +267,14 @@
         <option value="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/text_rnn.py" />
         <option value="$PROJECT_DIR$/Speech_Text_Fusion/config.py" />
         <option value="$PROJECT_DIR$/Speech_Text_Fusion/utils/torch_dataloader.py" />
-        <option value="$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py" />
         <option value="$PROJECT_DIR$/Speech_Text_Fusion/utils/model_dataloader.py" />
-        <option value="$PROJECT_DIR$/Speech_Text_Fusion/main.py" />
+        <option value="$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py" />
         <option value="$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py" />
+        <option value="$PROJECT_DIR$/Speech_Text_Fusion/main.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
+  <component name="ProjectFrameBounds" extendedState="6">
     <option name="x" value="1367" />
     <option name="y" value="29" />
     <option name="width" value="1346" />
@@ -435,7 +438,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="1366" y="0" width="2560" height="1080" extended-state="7" />
+    <frame x="1366" y="0" width="2560" height="1080" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.18364312" />
@@ -443,8 +446,8 @@
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.3284553" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.3284553" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.35691988" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.32778355" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.35691988" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -641,37 +644,37 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>135</line>
+          <line>137</line>
           <option name="timeStamp" value="288" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>141</line>
+          <line>143</line>
           <option name="timeStamp" value="289" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>142</line>
+          <line>144</line>
           <option name="timeStamp" value="290" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>145</line>
+          <line>147</line>
           <option name="timeStamp" value="291" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>146</line>
+          <line>148</line>
           <option name="timeStamp" value="292" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>147</line>
+          <line>149</line>
           <option name="timeStamp" value="293" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/main.py</url>
-          <line>128</line>
+          <line>130</line>
           <option name="timeStamp" value="295" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -691,7 +694,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>154</line>
+          <line>157</line>
           <option name="timeStamp" value="315" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -701,27 +704,27 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>125</line>
+          <line>126</line>
           <option name="timeStamp" value="317" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>129</line>
+          <line>130</line>
           <option name="timeStamp" value="318" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>134</line>
+          <line>135</line>
           <option name="timeStamp" value="319" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>142</line>
+          <line>145</line>
           <option name="timeStamp" value="320" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py</url>
-          <line>140</line>
+          <line>141</line>
           <option name="timeStamp" value="321" />
         </line-breakpoint>
       </breakpoints>
@@ -1042,16 +1045,6 @@ print(model.parameters)</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2197">
-          <caret line="140" selection-start-line="140" selection-end-line="140" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_dataloader.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1472">
@@ -1062,22 +1055,32 @@ print(model.parameters)</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/main.py">
+    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/utils/model_train.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="31" column="24" selection-start-line="31" selection-start-column="24" selection-end-line="31" selection-end-column="24" />
+        <state relative-caret-position="312">
+          <caret line="142" column="24" lean-forward="true" selection-start-line="142" selection-start-column="24" selection-end-line="142" selection-end-column="24" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/experiments/pretraining/audio_rnn.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="696">
-          <caret line="88" column="33" selection-start-line="88" selection-start-column="33" selection-end-line="88" selection-end-column="33" />
+        <state relative-caret-position="438">
+          <caret line="107" column="21" selection-start-line="107" selection-start-column="21" selection-end-line="107" selection-end-column="21" />
           <folding>
             <element signature="e#0#27#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Speech_Text_Fusion/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="486">
+          <caret line="155" lean-forward="true" selection-start-line="155" selection-end-line="155" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -92,6 +92,8 @@ attn_layers = 1
 attn_dropout = 0.05
 attn_nonlinearity = 'tanh'
 
+clip = 50.0
+
 audio_hyperparameters = [input_size, hidden_size,
                         num_layers, bidirectional,
                         dropout, architecture,
@@ -129,7 +131,7 @@ data_loaders = (train_loader, valid_loader, test_loader)
 audio_rnn, audio_accuracies, valid_losses, train_losses\
     = audio_rnn_pretraining(data_loaders,
                             audio_hyperparameters,
-                            EPOCHS_a, lr_a)
+                            EPOCHS_a, lr_a, clip)
 # Printing Learning Curves
 # learn_curves(valid_losses, train_losses)
 

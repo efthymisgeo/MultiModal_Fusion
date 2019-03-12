@@ -116,7 +116,8 @@ def eval_text_rnn(dataloader, model, loss_function):
 #############################################################################
 #### AUDIO RNN TRAINING/EVALUATION HELPER FUNCTIONS
 #############################################################################
-def train_audio_rnn(_epoch, dataloader, model, loss_function, optimizer):
+def train_audio_rnn(_epoch, clip, dataloader,
+                    model, loss_function, optimizer):
     # enable train mode
     model.train()
     # initialize epoch's loss
@@ -139,6 +140,8 @@ def train_audio_rnn(_epoch, dataloader, model, loss_function, optimizer):
         loss = loss_function(y_pred, labels)
         # backward pass: compute gradient wrt model parameters
         loss.backward()
+        # clip gradients
+        _ = torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
         # update weights
         optimizer.step()
         running_loss += loss.item()

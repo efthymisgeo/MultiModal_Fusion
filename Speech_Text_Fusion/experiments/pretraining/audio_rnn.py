@@ -33,7 +33,7 @@ from sklearn.metrics import accuracy_score
 ########################################
 
 def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
-                          learning_rate=0.001):
+                          learning_rate=0.001, clip =50.0):
     '''
     INPUTS:
     data_loaders : 3-len tuple that contains
@@ -75,7 +75,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
     for epoch in range(1, EPOCHS + 1):
         # train model
-        train_audio_rnn(epoch, train_loader, audio_rnn, criterion, optimizer)
+        train_audio_rnn(epoch, clip, train_loader, audio_rnn, criterion, optimizer)
 
         # evaluate performance on  test
         train_loss, (y_train_pred, y_train_gold) = eval_audio_rnn(train_loader,
@@ -105,6 +105,6 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
     print("Test Set Accuracy is ", accuracy_score(y_test_gold,
                                                   y_test_pred))
 
-    return (model, batch_accuracies, valid_losses, train_losses)
+    return (audio_rnn, batch_accuracies, valid_losses, train_losses)
 
 
