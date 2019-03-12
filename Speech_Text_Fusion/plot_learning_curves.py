@@ -8,8 +8,8 @@ from config import pickle_load
 #################################
 ## learning curves plot
 #################################
-def learning_curves(valid, train):
-    plt.figure()
+def learning_curves(valid, train, name):
+    fig = plt.figure()
     plt.title("Learning Curves")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
@@ -17,7 +17,7 @@ def learning_curves(valid, train):
     plt.plot(train, 'g', label='training curve')
     plt.legend()
     plt.show()
-
+    fig.savefig(name + '.png')
 
 
 
@@ -44,4 +44,4 @@ for file in os.listdir(rnn_path):
 valid_losses = audio_rnn["valid_loss"]
 train_losses = audio_rnn["train_loss"]
 
-learning_curves(valid_losses, train_losses)
+learning_curves(valid_losses, train_losses, 'audio_rnn')

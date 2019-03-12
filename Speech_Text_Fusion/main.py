@@ -4,9 +4,12 @@ from torch.optim import Adam
 import numpy as np
 from random import randint
 
+from models.Text_Rnn import Text_RNN
+
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-from config import DEVICE, synthetic_dataset, pickle_save, pickle_load
+from config import DEVICE, MAX_LEN, synthetic_dataset, learn_curves,\
+    pickle_save, pickle_load
 
 from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
@@ -23,13 +26,13 @@ print(DEVICE)
 N = 100 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Binary_Dataset()
+#dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -124,7 +127,7 @@ text_rnn_metadata = {"model": text_rnn,
 
 
 # Training Audio RNN Model
-EPOCHS_a = 100
+EPOCHS_a = 1
 lr_a = 0.001
 data_loaders = (train_loader, valid_loader, test_loader)
 
@@ -133,10 +136,25 @@ audio_rnn, audio_accuracies, valid_losses, train_losses\
                             audio_hyperparameters,
                             EPOCHS_a, lr_a, clip)
 # Printing Learning Curves
-# learn_curves(valid_losses, train_losses)
+learn_curves(valid_losses, train_losses, "AudioRNN_Loss")
 
-audio_rnn_metadata = {"model": audio_rnn.to("cpu"),
-                      "accuracy": audio_accuracies,
+##########################
+# Save/Load models
+##########################
+
+# SAVING MODE
+
+# always tranfer to cpu for interuser compatibility
+model = audio_rnn.to("cpu")
+
+# save model dictionary to PATH
+rnn_path = os.path.abspath("rnn_metadata")
+
+AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
+torch.save(model.state_dict(), AUDIO_RNN_PATH)
+
+#save model metadata
+audio_rnn_metadata = {"accuracy": audio_accuracies,
                       "valid_loss": valid_losses,
                       "train_loss": train_losses}
 
@@ -144,10 +162,16 @@ audio_rnn_metadata = {"model": audio_rnn.to("cpu"),
 #pickle_save("text_rnn.p", text_rnn_metadata)
 pickle_save("audio_rnn.p", audio_rnn_metadata)
 
-# load metadata dicts
+# LOADING MODE
+
 #rnn_path = os.path.abspath("rnn_metadata")
 #text_rnn_data = pickle_load(rnn_path,"text_rnn.p"))
-#audio_rnn_data = pickle_load(rnn_path, "audio_rnn.p")
+
+audio_rnn = Text_RNN(*audio_hyperparameters)
+audio_rnn.load_state_dict(torch.load(AUDIO_RNN_PATH))
+audio_rnn.eval()
+
+audio_rnn_data = pickle_load(rnn_path, "audio_rnn.p")
 
 
 

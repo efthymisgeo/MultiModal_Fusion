@@ -60,8 +60,8 @@ def synthetic_dataset(N):
 #################################
 ## learning curves plot
 #################################
-def learn_curves(valid, train):
-    plt.figure()
+def learn_curves(valid, train, name):
+    fig = plt.figure()
     plt.title("Learning Curves")
     plt.xlabel("Epochs")
     plt.ylabel("Loss")
@@ -69,7 +69,7 @@ def learn_curves(valid, train):
     plt.plot(train, 'g', label='training curve')
     plt.legend()
     plt.show()
-
+    fig.savefig(name + '.png')
 
 
 #####################################
