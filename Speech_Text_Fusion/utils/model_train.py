@@ -141,7 +141,7 @@ def train_audio_rnn(_epoch, clip, dataloader,
         # backward pass: compute gradient wrt model parameters
         loss.backward()
         # clip gradients
-        _ = torch.nn.utils.clip_grad_norm_(model.parameters(), clip)
+        _ = torch.nn.utils.clip_grad_value_(model.parameters(), clip)
         # update weights
         optimizer.step()
         running_loss += loss.item()

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 ## DEVICE: CPU / GPU
 # use GPU if available
 ##############################
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
 # MAX_LEN of GloVe/ averaged COVAREP
 MAX_LEN = 50
