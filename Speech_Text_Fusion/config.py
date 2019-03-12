@@ -57,6 +57,20 @@ def synthetic_dataset(N):
     return (dataset)
 ##############################
 
+#################################
+## learning curves plot
+#################################
+def learn_curves(valid, train):
+    plt.figure()
+    plt.title("Learning Curves")
+    plt.xlabel("Epochs")
+    plt.ylabel("Loss")
+    plt.plot(valid, 'r', label='validation curve')
+    plt.plot(train, 'g', label='training curve')
+    plt.legend()
+    plt.show()
+
+
 
 #####################################
 # save dictionaries

@@ -8,7 +8,7 @@ from config import pickle_load
 #################################
 ## learning curves plot
 #################################
-def learn_curves(valid, train):
+def learning_curves(valid, train):
     plt.figure()
     plt.title("Learning Curves")
     plt.xlabel("Epochs")
@@ -22,12 +22,11 @@ def learn_curves(valid, train):
 
 
 # load metadata dicts
-parent_path = dirname(abspath(__file__))
-rnn_path = os.path.join(parent_path, "rnn_metadata")
+rnn_path = os.path.abspath("rnn_metadata")
 
 
 for file in os.listdir(rnn_path):
-    if file == 'text_rnn':
+    if file == 'text_rnn.p':
         continue
         #text_rnn = pickle_load(rnn_path, file)
     else:
@@ -35,8 +34,6 @@ for file in os.listdir(rnn_path):
 
 
 
-#text_rnn_data = pickle_load(os.path.join(rnn_path,"text_rnn"))
-audio_rnn_data = pickle_load(os.path.join(rnn_path,"audio_rnn"))
 
 # metadata format
 # audio_rnn_metadata = {"model": audio_rnn,
@@ -44,7 +41,7 @@ audio_rnn_data = pickle_load(os.path.join(rnn_path,"audio_rnn"))
 #                       "valid_loss": valid_losses,
 #                       "train_loss": train_losses}
 
-valid_losses = audio_rnn_data["valid_loss"]
-train_losses = audio_rnn_data["train_loss"]
+valid_losses = audio_rnn["valid_loss"]
+train_losses = audio_rnn["train_loss"]
 
-learn_curves(valid_losses, train_losses)
+learning_curves(valid_losses, train_losses)

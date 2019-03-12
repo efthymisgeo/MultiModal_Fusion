@@ -23,13 +23,13 @@ print(DEVICE)
 N = 100 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Binary_Dataset()
+#dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -124,7 +124,7 @@ text_rnn_metadata = {"model": text_rnn,
 
 
 # Training Audio RNN Model
-EPOCHS_a = 100
+EPOCHS_a = 1
 lr_a = 0.001
 data_loaders = (train_loader, valid_loader, test_loader)
 
@@ -135,19 +135,19 @@ audio_rnn, audio_accuracies, valid_losses, train_losses\
 # Printing Learning Curves
 # learn_curves(valid_losses, train_losses)
 
-audio_rnn_metadata = {"model": audio_rnn.parameters(),
+audio_rnn_metadata = {"model": audio_rnn.to("cpu"),
                       "accuracy": audio_accuracies,
                       "valid_loss": valid_losses,
                       "train_loss": train_losses}
 
 # save metadata dictionaries
-#pickle_save("text_rnn", text_rnn_metadata)
-pickle_save("audio_rnn", audio_rnn_metadata)
+#pickle_save("text_rnn.p", text_rnn_metadata)
+pickle_save("audio_rnn.p", audio_rnn_metadata)
 
 # load metadata dicts
-#rnn_path = os.path.abspath("rnn_metadata")
-#text_rnn_data = pickle_load(os.path.join(rnn_path,"text_rnn"))
-#audio_rnn_data = pickle_load(os.path.join(rnn_path,"audio_rnn"))
+rnn_path = os.path.abspath("rnn_metadata")
+#text_rnn_data = pickle_load(rnn_path,"text_rnn.p"))
+#audio_rnn_data = pickle_load(rnn_path, "audio_rnn.p")
 
 
 
