@@ -79,10 +79,12 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
         # evaluate performance on  test
         train_loss, (y_train_pred, y_train_gold) = eval_audio_rnn(train_loader,
-                                                                 model, criterion)
+                                                                  audio_rnn,
+                                                                  criterion)
         # evaluate performanve on valid set
         valid_loss, (y_valid_pred, y_valid_gold) = eval_audio_rnn(valid_loader,
-                                                                 model, criterion)
+                                                                  audio_rnn,
+                                                                  criterion)
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
         print('Train accuracy at epoch ', epoch,
               'is ', batch_accuracy)
@@ -97,7 +99,9 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
     # evaluate performance on test set
     test_loss, (y_test_pred, y_test_gold) = eval_audio_rnn(test_loader,
-                                                           model, criterion)
+                                                           audio_rnn,
+                                                           criterion)
+
     print("Test Set Accuracy is ", accuracy_score(y_test_gold,
                                                   y_test_pred))
 
