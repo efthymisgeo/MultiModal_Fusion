@@ -108,8 +108,8 @@ audio_hyperparameters = [input_size, hidden_size,
 # Training Text RNN Models
 ########################################
 
-EPOCHS_t = 100
-lr_t = 0.0001
+EPOCHS_t = 60
+lr_t = 0.00001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 text_rnn, text_accuracies, valid_losses, train_losses\
@@ -134,7 +134,7 @@ pickle_save("text_rnn.p", text_rnn_metadata)
 ###########################################
 
 EPOCHS_a = 130
-lr_a = 0.00007
+lr_a = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
