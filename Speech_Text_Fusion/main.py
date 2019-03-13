@@ -134,7 +134,7 @@ pickle_save("text_rnn.p", text_rnn_metadata)
 ###########################################
 
 EPOCHS_a = 130
-lr_a = 0.0001
+lr_a = 0.00001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
