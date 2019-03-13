@@ -107,8 +107,8 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Text RNN Models
 ########################################
-'''
-EPOCHS_t = 1
+
+EPOCHS_t = 100
 lr_t = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
@@ -117,18 +117,24 @@ text_rnn, text_accuracies, valid_losses, train_losses\
                            text_hyperparameters,
                            EPOCHS_t, lr_t)
 
-text_rnn_metadata = {"model": text_rnn,
-                 "accuracy": text_accuracies,
-                 "valid_loss": valid_losses,
-                 "train_loss": train_losses}
 # Printing Learning Curves
-#learn_curves(valid_losses, train_losses)
-'''
+learn_curves(valid_losses, train_losses, "TextRNN_Loss")
+
+# save model metadata
+text_rnn_metadata = {"accuracy": text_accuracies,
+                     "valid_loss": valid_losses,
+                     "train_loss": train_losses}
+
+# save metadata dict
+pickle_save("text_rnn.p", text_rnn_metadata)
 
 
+###########################################
 # Training Audio RNN Model
-EPOCHS_a = 100
-lr_a = 0.0001
+###########################################
+
+EPOCHS_a = 120
+lr_a = 0.00007
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
@@ -138,39 +144,41 @@ audio_rnn, audio_accuracies, valid_losses, train_losses\
 # Printing Learning Curves
 learn_curves(valid_losses, train_losses, "AudioRNN_Loss")
 
-##########################
-# Save/Load models
-##########################
-
-# SAVING MODE
-
-# always tranfer to cpu for interuser compatibility
-model = audio_rnn.to("cpu")
-
-# save model dictionary to PATH
-rnn_path = os.path.abspath("rnn_metadata")
-
-AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
-torch.save(model.state_dict(), AUDIO_RNN_PATH)
-
 #save model metadata
 audio_rnn_metadata = {"accuracy": audio_accuracies,
                       "valid_loss": valid_losses,
                       "train_loss": train_losses}
 
 # save metadata dictionaries
-#pickle_save("text_rnn.p", text_rnn_metadata)
 pickle_save("audio_rnn.p", audio_rnn_metadata)
 
-# LOADING MODE
+##########################################
+# Save/Load models
+##########################################
 
-#rnn_path = os.path.abspath("rnn_metadata")
-#text_rnn_data = pickle_load(rnn_path,"text_rnn.p"))
+# SAVING MODE
+# save model dictionary to PATH
+rnn_path = os.path.abspath("rnn_metadata")
+TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.py")
+AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
+
+# always tranfer to cpu for interuser compatibility
+model = text_rnn.to("cpu")
+torch.save(model.state_dict(), TEXT_RNN_PATH)
+
+model = audio_rnn.to("cpu")
+torch.save(model.state_dict(), AUDIO_RNN_PATH)
+
+# LOADING MODE
+text_rnn = Text_RNN(*text_hyperparameters)
+text_rnn.load_state_dict(torch.load(TEXT_RNN_PATH))
+text_rnn.eval()
 
 audio_rnn = Text_RNN(*audio_hyperparameters)
 audio_rnn.load_state_dict(torch.load(AUDIO_RNN_PATH))
 audio_rnn.eval()
 
+text_rnn_data = pickle_load(rnn_path, "text_rnn.p")
 audio_rnn_data = pickle_load(rnn_path, "audio_rnn.p")
 
 
