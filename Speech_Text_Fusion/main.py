@@ -133,7 +133,7 @@ pickle_save("text_rnn.p", text_rnn_metadata)
 # Training Audio RNN Model
 ###########################################
 
-EPOCHS_a = 120
+EPOCHS_a = 130
 lr_a = 0.00007
 data_loaders = (train_loader, valid_loader, test_loader)
 
