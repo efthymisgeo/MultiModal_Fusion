@@ -108,14 +108,14 @@ audio_hyperparameters = [input_size, hidden_size,
 # Training Text RNN Models
 ########################################
 
-EPOCHS_t = 180
+EPOCHS_ = [100, 200, 230]
 lr_list = [0.00001, 0.000005, 1e-6]
 for i,lr_t in enumerate(lr_list):
     #lr_t = 0.00001
     print("###############################################")
     print("Started training model no ", i)
     data_loaders = (train_loader, valid_loader, test_loader)
-    
+    EPOCHS_t = EPOCHS_[i]
     text_rnn, text_accuracies, valid_losses, train_losses = text_rnn_pretraining(data_loaders,
                                                                                  text_hyperparameters,
                                                                                  EPOCHS_t, lr_t)
