@@ -108,8 +108,8 @@ audio_hyperparameters = [input_size, hidden_size,
 # Training Text RNN Models
 ########################################
 
-EPOCHS_t = 100
-lr_list = [0.001, 0.0005, 0.0001, 0.00005, 0.00001, 0.000005]
+EPOCHS_t = 180
+lr_list = [0.00001, 0.000005, 1e-6]
 for i,lr_t in enumerate(lr_list):
     #lr_t = 0.00001
     print("###############################################")
