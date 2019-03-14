@@ -60,7 +60,7 @@ print("ready to rock")
 ######################################
 text_hyperparameters = []
 input_size = 300 # glove size
-hidden_size = 69 # hidden state size
+hidden_size = 64 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
 dropout = 0.0
@@ -108,18 +108,22 @@ audio_hyperparameters = [input_size, hidden_size,
 # Training Text RNN Models
 ########################################
 
-EPOCHS_t = 60
-lr_t = 0.00001
-data_loaders = (train_loader, valid_loader, test_loader)
+EPOCHS_t = 100
+lr_list = [0.001, 0.0005, 0.0001, 0.00005, 0.00001, 0.000005]
+for i,lr_t in enumerate(lr_list):
+    #lr_t = 0.00001
+    print("###############################################")
+    print("Started training model no ", i)
+    data_loaders = (train_loader, valid_loader, test_loader)
+    
+    text_rnn, text_accuracies, valid_losses, train_losses = text_rnn_pretraining(data_loaders,
+                                                                                 text_hyperparameters,
+                                                                                 EPOCHS_t, lr_t)
 
-text_rnn, text_accuracies, valid_losses, train_losses\
-    = text_rnn_pretraining(data_loaders,
-                           text_hyperparameters,
-                           EPOCHS_t, lr_t)
-
-# Printing Learning Curves
-learn_curves(valid_losses, train_losses, "TextRNN_Loss")
-
+    # Saving Learning Curves
+    learn_curves(valid_losses, train_losses, "TextRNN_Loss"+str(i))
+    print("Finished training model no ", i)
+    print("++++++++++++++++++++++++++++++++++++++++++++++++\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 # save model metadata
 text_rnn_metadata = {"accuracy": text_accuracies,
                      "valid_loss": valid_losses,
@@ -132,7 +136,7 @@ pickle_save("text_rnn.p", text_rnn_metadata)
 ###########################################
 # Training Audio RNN Model
 ###########################################
-
+'''
 EPOCHS_a = 130
 lr_a = 0.00001
 data_loaders = (train_loader, valid_loader, test_loader)
@@ -151,7 +155,7 @@ audio_rnn_metadata = {"accuracy": audio_accuracies,
 
 # save metadata dictionaries
 pickle_save("audio_rnn.p", audio_rnn_metadata)
-
+'''
 ##########################################
 # Save/Load models
 ##########################################

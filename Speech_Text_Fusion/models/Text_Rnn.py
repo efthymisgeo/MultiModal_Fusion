@@ -70,6 +70,7 @@ class Text_RNN(nn.Module):
         # Pass batch input through RNN #
         #       Get Packed outputs     #
         rnn_out, last_outputs = self.rnn(inputs, lengths)
+       
         #  Apply Attention in rnn_out  #
         attn_representations, attn_scores = self.attn(rnn_out,
                                                       lengths)
