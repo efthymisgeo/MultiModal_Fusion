@@ -65,6 +65,11 @@ class Text_RNN(nn.Module):
         Input Args:
             inputs: 3D tensor (batch_len, max_len, feature_dim)
             lengths: 1D tensor (batch_len)
+        Output Args:
+            logits: (batch_len, *)
+            attn_representations: (batch_len, hidden_dim)
+            rnn_out (batch_len, real_max_len, hidden_dim)
+            attn_scores: (batch_len, real_max_len)
         '''
 
         # Pass batch input through RNN #
@@ -76,4 +81,4 @@ class Text_RNN(nn.Module):
         # project to #classes
         logits = self.dense(attn_representations).view(-1,1)
 
-        return logits, attn_representations, attn_scores
+        return logits, attn_representations, rnn_out, attn_scores

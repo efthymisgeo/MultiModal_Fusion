@@ -3,7 +3,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 class RNNEncoder(nn.Module):
     def __init__(self, input_size, rnn_size, num_layers,
-                 bidirectional, dropout, architecture='LSTM'):
+                 bidirectional, dropout, architecture='GRU'):
         """
         A simple RNN Encoder.
         Args:

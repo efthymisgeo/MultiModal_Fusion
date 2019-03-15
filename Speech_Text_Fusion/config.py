@@ -15,6 +15,13 @@ DEVICE = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 # MAX_LEN of GloVe/ averaged COVAREP
 MAX_LEN = 50
 
+BATCH_SIZE = 8
+
+# save model dictionary to PATH
+rnn_path = os.path.abspath("rnn_metadata")
+TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.py")
+AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
+
 #############################
 ###TOY DATASET GENERATION ###
 #############################

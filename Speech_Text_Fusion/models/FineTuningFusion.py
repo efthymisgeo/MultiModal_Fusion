@@ -1,6 +1,6 @@
 from torch import nn, torch
 from torch.autograd import Variable
-from config import DEVICE
+from config import DEVICE, MAX_LEN
 
 ###########################################
 ## Generalised Attention Mechanism  #######
@@ -51,10 +51,12 @@ class GeneralAttention(nn.Module):
 
         # multiply each hidden state with the attention weights
         weighted = torch.mul(inputs, scores.unsqueeze(-1).expand_as(inputs))
-        print(weighted.size())
+
         # sum the hidden states
-        representations = weighted.sum(1).squeeze()
-        print(representations.size())
+        # uncomment following command in case of bug
+        # representations = weighted.sum(1).squeeze()
+        representations = weighted.sum(1)
+
         return representations, scores
 
 
@@ -70,113 +72,52 @@ class FTA_Fusion(nn.Module):
         -- Fine Tuning Attention Mechanism --
         B : BATCH SIZE
         INPUTS:
-            text_size: (B,M,H_t)
-            audio_size: (B,L,H_a)
+            text_size: (B,K,H_t)
+            audio_size: (B,K,H_a)
             layers (int): # of attn layers
             fusion_size (int)
             attention_size (int)
-        OUTPUTS:
-            fused: (B,max{H_t,H_a}) fused representation
-            fused_a : (B,max{M,L}) fusion attentions
+        OUTPUTS: (from forward)
+            fused: (B,min{H_t,H_a}) fused representation
+            fused_a : (B,K) fusion attentions
         '''
 
         super(FTA_Fusion, self).__init__()
 
         # get batch size, max_len, hidden_size
-        B, M, H_t = text_size
-        _, L, H_a = audio_size
+        B, K, H_t = text_size
+        _, _, H_a = audio_size
 
         W = min(H_t, H_a)  # should be H_a
-        Q = max(M, L)  # should be L
 
-        # mapping (H_t + H_a)*B --> W
-        self.dense = nn.Linear((H_t + H_a) * Q, W * Q)
+        # mapping (H_t + H_a)*MAX_LEN --> W*MAX_LEN
+        self.dense = nn.Linear(H_t+H_a, W)
         # generalized attention module
-        self.attn = GeneralAttention(W)
+        self.attn = GeneralAttention(W, batch_first=True, layers=layers)
 
-    @staticmethod
-    def pad_cat(tensor_1, tensor_2):
+
+
+    def forward(self, h_text, w_text, h_audio, w_audio, lengths):
         '''
-        Args:
-        tensor_1: (B,M,D)
-        tensor_2: (B,L,H)
-        Outputs:
-        tensor: (B,max{M,L},D+H)
+        INPUTS:
+            h_text:
+            w_text:
+            h_audio:
+            w_audio:
+            lengths:
+        OUTPUTS:
         '''
-        B, M, D = tensor_1.size()
-        _, L, H = tensor_2.size()
-        # pad
-        if M > L:
-            pad_tensor = torch.zeros(B, M - L, H).to(DEVICE)
-            tensor_2 = torch.cat((tensor_2, pad_tensor), 1)
-        else:
-            pad_tensor = torch.zeros(B, L - M, D).to(DEVICE)
-            tensor_1 = torch.cat((tensor_1, pad_tensor), 1)
-        # concatenate
-        tensor = torch.cat((tensor_1, tensor_2), 2)
-        return tensor
 
-    @staticmethod
-    def pad_mean(tensor_1, tensor_2):
-        '''
-        Args:
-        tensor_1: (B,M)
-        tensor_2: (B,L)
-        Outputs:
-        tensor: (B,max{M,L})
-        '''
-        B, M = tensor_1.size()
-        _, L = tensor_2.size()
-        # pad
-        if M > L:
-            pad_tensor = torch.zeros(B, M - L).to(DEVICE)
-            tensor_2 = torch.cat((tensor_2, pad_tensor), 1)
-        else:
-            pad_tensor = torch.zeros(B, L - M).to(DEVICE)
-            tensor_1 = torch.cat((tensor_1, pad_tensor), 1)
-        # mean
-        tensor = torch.add(tensor_1, tensor_2) / 2.0
-        return tensor
+        # cat features
+        h_fused = torch.cat((h_text, h_audio), 2)
 
-    def forward(self, h_text, w_text, h_audio, w_audio):
-        '''
-        Args
-        h_text (B,M,H_t) : hidden text representation
-        w_text (B,M): text attn weigths
-        h_audio (B,L,H_a) : hid audio representation
-        w_audio (B,L): audio attn weights
-        Outputs
-        fused ()
-        '''
-        # get sizes
-        B, M, H_t = h_text.size()
-        _, L, H_a = h_audio.size()
+        # linear projection
+        h_fused = self.dense(h_fused)
 
-        W = max(M, L)
-        H = min(H_t, H_a)
+        # average attention energies
+        w_averaged = torch.add(w_text, w_audio) / 2.0
 
-        # concatenate text&audio representations
-        joint_repr = self.pad_cat(h_text, h_audio).view(B, -1)
-        print(joint_repr.size())
-        joint_repr = self.dense(joint_repr).view(B, W, -1)
+        # apply generalized attention
+        fusion_representation, w_fusion = self.attn(h_fused, w_averaged)
 
-        # get mean of text, audio attention vectors
-        joint_attn = self.pad_mean(w_text, w_audio)
-
-        # attention layer
-        joint_repr, joint_weights = self.attn(joint_repr, joint_attn)
-        print(joint_repr.size())
-        print(joint_weights.size())
-
-        ##############################
-        ## at this point we have (8,68,38) repr
-        ## and (8,68) weights whereas we need
-        ## (8,38) representation
-        ##########################
-        ## FIX ME
-        # element-wise product
-        # joint_repr = torch.mul(joint_repr,
-        #                     joint_attn)
-
-        return joint_repr, joint_weights
-
+        return fusion_representation, w_fusion

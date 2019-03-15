@@ -40,6 +40,9 @@ def progress(loss, epoch, batch, batch_size, dataset_size):
     if batch == batches:
         print()
 
+########################################################################
+#                   TEXT RNN TRAINING FUNCTIONS
+########################################################################
 
 def train_text_rnn(_epoch, dataloader, model, loss_function, optimizer):
     # enable train mode
@@ -59,7 +62,7 @@ def train_text_rnn(_epoch, dataloader, model, loss_function, optimizer):
         # feedforward pass
         model.zero_grad()
         # get model prediction
-        y_pred, _, _ = model(glove, lengths)
+        y_pred, _, _, _ = model(glove, lengths)
         # compute loss
         loss = loss_function(y_pred, labels)
         # backward pass: compute gradient wrt model parameters
@@ -92,7 +95,7 @@ def eval_text_rnn(dataloader, model, loss_function):
             lengths, perm = torch.sort(lengths, descending=True)
             glove = glove[perm].float()
             labels = labels[perm].view(-1,1)
-            y_hat, _, _ = model(glove, lengths)
+            y_hat, _, _, _ = model(glove, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
@@ -114,7 +117,7 @@ def eval_text_rnn(dataloader, model, loss_function):
     return running_loss / index, (y_predicted, y)
 
 #############################################################################
-#### AUDIO RNN TRAINING/EVALUATION HELPER FUNCTIONS
+#        AUDIO RNN TRAINING/EVALUATION HELPER FUNCTIONS
 #############################################################################
 def train_audio_rnn(_epoch, clip, dataloader,
                     model, loss_function, optimizer):
@@ -135,7 +138,7 @@ def train_audio_rnn(_epoch, clip, dataloader,
         # feedforward pass
         model.zero_grad()
         # get model prediction
-        y_pred, _, _ = model(covarep, lengths)
+        y_pred, _, _, _ = model(covarep, lengths)
         # compute loss
         loss = loss_function(y_pred, labels)
         # backward pass: compute gradient wrt model parameters
@@ -170,9 +173,96 @@ def eval_audio_rnn(dataloader, model, loss_function):
             lengths, perm = torch.sort(lengths, descending=True)
             covarep =covarep[perm].float()
             labels = labels[perm].view(-1,1)
-            y_hat, _, _ = model(covarep, lengths)
+            y_hat, _, _, _ = model(covarep, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
+            # make predictions (class = argmax of posteriors)
+            probs = torch.sigmoid(y_hat)
+            #sntmnt_class = torch.argmax(y_hat, dim=1)
+            sntmnt_class = torch.ge(probs,0.5).int()
+            # collect the predictions, gold labels and batch loss
+            pred = to_numpy(sntmnt_class)
+            labels = to_numpy(labels.int())
+
+            y_predicted.append(pred)
+            y.append(labels)
+
+            running_loss += loss.item()
+
+    y_predicted = flatten_list(y_predicted)
+    y = flatten_list(y)
+
+    return running_loss / index, (y_predicted, y)
+
+##################################################################################
+#           2 CLASS CLASSIFICATION MODEL TRAINING FUNCTIONS
+##################################################################################
+
+def train_2_class_model(_epoch, clip, dataloader,
+                        model, loss_function, optimizer):
+    # enable train mode
+    model.train()
+    # initialize epoch's loss
+    running_loss = 0.0
+
+    for index, batch in enumerate(dataloader,1):
+        (covarep, _), (glove, lengths), labels = batch
+        # we assume batch already in correct device through dataloader
+
+        # sort fetaures per length for packing
+        lengths, perm = torch.sort(lengths, descending=True)
+        glove = glove[perm].float()
+        covarep = covarep[perm].float()
+        labels = labels[perm].view(-1,1).float()
+
+        # feedforward pass
+        model.zero_grad()
+        # get model prediction
+        y_pred = model(covarep, lengths, glove, lengths)
+        # compute loss
+        loss = loss_function(y_pred, labels)
+        # backward pass: compute gradient wrt model parameters
+        loss.backward()
+        # clip gradients
+        #_ = torch.nn.utils.clip_grad_value_(model.parameters(), clip)
+        # update weights
+        optimizer.step()
+        running_loss += loss.item()
+        # print statistics
+        progress(loss=loss.item(),
+                 epoch=_epoch,
+                 batch=index,
+                 batch_size=dataloader.batch_size,
+                 dataset_size=len(dataloader.dataset))
+
+    return running_loss / index
+
+###########################
+###
+###########################
+def eval_2_class_model(dataloader, model, loss_function):
+    # IMPORTANT: switch to eval mode
+    model.eval()
+    running_loss = 0.0
+
+
+    y_predicted = []  # the predicted labels
+    y = []  # the gold labels
+    # we don't want to keep gradients so everything under torch.no_grad()
+    with torch.no_grad():
+        for index, batch in enumerate(dataloader):
+
+            (covarep, _), (glove, lengths), labels = batch
+
+            # sort fetaures per length for packing
+            lengths, perm = torch.sort(lengths, descending=True)
+            glove = glove[perm].float()
+            covarep = covarep[perm].float()
+            labels = labels[perm].view(-1, 1).float()
+
+            y_hat = model(covarep, lengths, glove, lengths)
+            # We compute the loss to compare train/test we dont backpropagate in test time
+            loss = loss_function(y_hat, labels)
             # make predictions (class = argmax of posteriors)
             probs = torch.sigmoid(y_hat)
             #sntmnt_class = torch.argmax(y_hat, dim=1)

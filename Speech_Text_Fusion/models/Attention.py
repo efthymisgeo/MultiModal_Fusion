@@ -82,6 +82,9 @@ class SelfAttention(nn.Module):
         weighted = torch.mul(inputs, scores.unsqueeze(-1).expand_as(inputs))
 
         # sum the hidden states
-        representations = weighted.sum(1).squeeze()
+
+        # in case of bug uncomment the following line
+        # representations = weighted.sum(1).squeeze()
+        representations = weighted.sum(1)
 
         return representations, scores

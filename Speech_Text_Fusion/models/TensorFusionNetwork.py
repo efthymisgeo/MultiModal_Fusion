@@ -5,7 +5,7 @@
 # code provided by:
 # https://github.com/Justin1904/TensorFusionNetworks/blob/master/model.py
 # modified for our needs
-
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
@@ -32,9 +32,9 @@ class TFN(nn.Module):
         super(TFN, self).__init__()
 
         # dimensions are specified in the order of audio, video and text
-        self.audio_hidden = hidden_dims[0]
-        self.video_hidden = hidden_dims[1]
-        self.text_hidden = hidden_dims[2]
+        self.audio_hidden = hidden_dims[0]*2
+        self.video_hidden = hidden_dims[1]*2
+        self.text_hidden = hidden_dims[2]*2
 
         self.post_fusion_dim = post_fusion_dim
 
@@ -54,7 +54,7 @@ class TFN(nn.Module):
         # choose final layer according to task
         if self.task == 'binary':
             self.post_fusion_layer_3 = nn.Linear(self.post_fusion_dim, 1)
-        elif sel.task == '5 class':
+        elif self.task == '5 class':
             self.post_fusion_layer_3 = nn.Linear(self.post_fusion_dim, 5)
         else:
             # regression task

@@ -8,38 +8,39 @@ from models.Text_Rnn import Text_RNN
 
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-from config import DEVICE, MAX_LEN, synthetic_dataset, learn_curves,\
-    pickle_save, pickle_load
+from config import DEVICE, MAX_LEN, BATCH_SIZE, synthetic_dataset,\
+    learn_curves, pickle_save, pickle_load
 
 from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
 from utils.model_dataloader import MOSI_Dataset, MOSI_Binary_Dataset
 
+from experiments.binary_classification import binary_model_training
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
 
 print(DEVICE)
 
+
 ###############################################
 # Load Task and synthetic dataset
 ###############################################
-N = 100 # instances of synthetic dataset
+N = 200 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Binary_Dataset()
+#dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
 
-kke = mm_dset[1]
-pasok = len(mm_dset)
-l = pasok
+# get dataset length
+l = len(mm_dset)
 
 # split dataset to train-valid-test
 test_size = int(0.2*l)
@@ -47,12 +48,9 @@ train_size = l - 2*test_size
 mm_train, mm_valid, mm_test = random_split(mm_dset,
                                            [train_size, test_size, test_size])
 # use dataloaders wrappers
-train_loader = DataLoader(mm_train, batch_size=8, shuffle=True)
+train_loader = DataLoader(mm_train, batch_size=BATCH_SIZE, shuffle=True)
 valid_loader = DataLoader(mm_valid)
 test_loader = DataLoader(mm_test)
-
-print("----------------")
-print("ready to rock")
 
 
 #######################################
@@ -103,7 +101,7 @@ audio_hyperparameters = [input_size, hidden_size,
                         attention_size, batch_first,
                         attn_layers, attn_dropout,
                         attn_nonlinearity, task]
-
+'''
 #########################################
 # Training Text RNN Models
 ########################################
@@ -168,20 +166,26 @@ torch.save(model.state_dict(), TEXT_RNN_PATH)
 
 model = audio_rnn.to("cpu")
 torch.save(model.state_dict(), AUDIO_RNN_PATH)
-
-# LOADING MODE
-text_rnn = Text_RNN(*text_hyperparameters)
-text_rnn.load_state_dict(torch.load(TEXT_RNN_PATH))
-text_rnn.eval()
-
-audio_rnn = Text_RNN(*audio_hyperparameters)
-audio_rnn.load_state_dict(torch.load(AUDIO_RNN_PATH))
-audio_rnn.eval()
-
-text_rnn_data = pickle_load(rnn_path, "text_rnn.p")
-audio_rnn_data = pickle_load(rnn_path, "audio_rnn.p")
+'''
 
 
+###################################################################
+###                     BINARY TASK
+###################################################################
+EPOCHS_bin = 100
+lr_bin = 0.0001
+#clip_bin_grad = 500
+
+data_loaders = (train_loader, valid_loader, test_loader)
+
+binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
+    = binary_model_training(data_loaders,
+                            text_hyperparameters,
+                            audio_hyperparameters,
+                            EPOCHS_bin, lr_bin, clip)
+# Printing Learning Curves
+learn_curves(bin_valid_losses, bin_train_losses, "Binary_Loss")
 
 
+print("kapakipoooooooooooooo")
 
