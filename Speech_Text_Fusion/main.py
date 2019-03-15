@@ -63,7 +63,7 @@ input_size = 300 # glove size
 hidden_size = 64 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
-dropout = 0.5
+dropout = [0.3, 0.5]
 architecture = 'GRU'
 attention_size = hidden_size
 batch_first = True
@@ -107,21 +107,22 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Text RNN Models
 ########################################
-
-EPOCHS_ = [120, 230] 
-lr_list = [0.00001, 0.000005]
-for i,lr_t in enumerate(lr_list):
+drop = [0.1, 0.3, 0.5]
+EPOCHS_ = [80, 180, 180] 
+lr_t = 0.00001
+for i,drop_i in enumerate(drop):
     #lr_t = 0.00001
     print("###############################################")
     print("Started training model no ", i)
     data_loaders = (train_loader, valid_loader, test_loader)
     EPOCHS_t = EPOCHS_[i]
+    text_hyperparameters[4] = drop_i
     text_rnn, text_accuracies, valid_losses, train_losses = text_rnn_pretraining(data_loaders,
                                                                                  text_hyperparameters,
                                                                                  EPOCHS_t, lr_t)
 
     # Saving Learning Curves
-    learn_curves(valid_losses, train_losses, "TextRNN_Loss"+str(i))
+    learn_curves(valid_losses, train_losses, "TextRNN_Loss_drop"+str(i))
     print("Finished training model no ", i)
     print("++++++++++++++++++++++++++++++++++++++++++++++++\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 # save model metadata
