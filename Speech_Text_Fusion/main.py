@@ -92,7 +92,7 @@ architecture = 'GRU'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.05
+attn_dropout = 0.1
 attn_nonlinearity = 'tanh'
 
 clip = 200.0
@@ -107,7 +107,7 @@ audio_hyperparameters = [input_size, hidden_size,
 #########################################
 # Training Text RNN Models
 ########################################
-drop = [0.1, 0.3, 0.5]
+drop = [0.0, 0.1, 0.5]
 EPOCHS_ = [75, 75, 75] 
 lr_t = 0.00001
 for i,drop_i in enumerate(drop):
