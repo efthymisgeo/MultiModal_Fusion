@@ -178,8 +178,8 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 ###                     BINARY TASK
 ###################################################################
-EPOCHS_bin = 30
-lr_bin = 0.0001
+EPOCHS_bin = 10
+lr_bin = 0.000001
 #clip_bin_grad = 500
 
 data_loaders = (train_loader, valid_loader, test_loader)
