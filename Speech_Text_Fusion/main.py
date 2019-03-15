@@ -135,7 +135,7 @@ pickle_save("text_rnn.p", text_rnn_metadata)
 ###########################################
 # Training Audio RNN Model
 ###########################################
-'''
+
 EPOCHS_a = 130
 lr_a = 0.00001
 data_loaders = (train_loader, valid_loader, test_loader)
@@ -165,6 +165,7 @@ rnn_path = os.path.abspath("rnn_metadata")
 TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.py")
 AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
 
+'''
 # always tranfer to cpu for interuser compatibility
 model = text_rnn.to("cpu")
 torch.save(model.state_dict(), TEXT_RNN_PATH)
