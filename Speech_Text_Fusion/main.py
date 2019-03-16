@@ -29,13 +29,13 @@ print(DEVICE)
 N = 200 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Binary_Dataset()
+#dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -190,7 +190,7 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 EPOCHS_bin = 50
 lr_bin = 0.001
-#clip_bin_grad = 500
+clip = 200
 
 data_loaders = (train_loader, valid_loader, test_loader)
 
