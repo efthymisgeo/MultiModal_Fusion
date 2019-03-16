@@ -27,9 +27,30 @@ class Hierarchy_Attn(nn.Module):
         H = text_dim_tuple[2]
         D = audio_dim_tuple[2]
 
+        # define representation layers
+        self.audio_fused_net = nn.Linear(2*D, D)
+        self.text_fused_net = nn.Linear(H+D, D)
+        self.deep_fused_net = nn.Linear(2*D, D)
+
         # define dense layers
-        self.lin_1 = nn.Linear(H+2*D, D)
+        self.lin_1 = nn.Linear(H+5*D, D)
         self.lin_2 = nn.Linear(D, D)
+
+        # modality attention layers
+        self.audio_attn = nn.Sequential(nn.Linear(D, D),
+                                        nn.Linear(D, 1))
+        self.text_attn = nn.Sequential(nn.Linear(H, D),
+                                        nn.Linear(D, 1))
+        self.fused_attn = nn.Sequential(nn.Linear(D, D),
+                                        nn.Linear(D, 1))
+        self.a_fused_attn = nn.Sequential(nn.Linear(D, D),
+                                        nn.Linear(D, 1))
+        self.t_fused_attn = nn.Sequential(nn.Linear(D, D),
+                                        nn.Linear(D, 1))
+        self.deep_fused_attn = nn.Sequential(nn.Linear(D, D),
+                                        nn.Linear(D, 1))
+
+        self.softmax = nn.Softmax(dim=-1)
 
         # define activation layers
         self.activ_1 = nn.ReLU()
@@ -62,10 +83,45 @@ class Hierarchy_Attn(nn.Module):
         F, weighted_fusion = self.fusion_net(hidden_t, weighted_t, hidden_a,
                                              weighted_a,lengths)
         # concatenate features
-        fused_tensor = torch.cat((T, F, A), 1)
+        # audio-fused
+        A_F = torch.cat((A, F), 1)
+        # text-fused
+        T_F = torch.cat((T, F), 1)
+
+        # extract fused representations
+        deep_af = self.audio_fused_net(A_F)
+        deep_tf = self.text_fused_net(T_F)
+
+        # extract deep fused representations
+        AF_TF = torch.cat((deep_af, deep_tf), 1)
+
+        deep_af_tf = self.deep_fused_net(AF_TF)
+
+        representations_list = [A,T,F,deep_af,deep_tf,deep_af_tf]
+
+        # modality attention
+        audio_energy = self.audio_attn(A)
+        text_energy = self.text_attn(T)
+        fused_energy = self.fused_attn(F)
+        a_fused_energy = self.a_fused_attn(deep_af)
+        t_fused_energy = self.t_fused_attn(deep_tf)
+        deep_fused_energy = self.deep_fused_attn(deep_af_tf)
+
+        energies_list = [audio_energy, text_energy, fused_energy,
+                         a_fused_energy, t_fused_energy, deep_fused_energy]
+
+        energies = torch.cat(energies_list, 1)
+        energies = self.softmax(energies)
+
+        for idx, rep in enumerate(representations_list):
+            representations_list[idx] = torch.mul(rep, energies[:,idx].unsqueeze(-1).expand_as(rep))
+
+
+        # concatenate all existing representations
+        deep_representation = torch.cat(representations_list, 1)
 
         # dense layers
-        representations = self.activ_1(self.lin_1(fused_tensor))
+        representations = self.activ_1(self.lin_1(deep_representation))
         representations = self.activ_2(self.lin_2(representations))
 
         # project to task space

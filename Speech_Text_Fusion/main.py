@@ -67,7 +67,7 @@ architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.2
+attn_dropout = 0.1
 attn_nonlinearity = 'tanh'
 
 text_hyperparameters = [input_size, hidden_size,
@@ -91,7 +91,7 @@ architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.2
+attn_dropout = 0.1
 attn_nonlinearity = 'tanh'
 
 clip = 200.0
@@ -188,19 +188,26 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 ###                     BINARY TASK
 ###################################################################
-EPOCHS_bin = 50
-lr_bin = 0.001
-clip = 200.0
+#EPOCHS_bin = 80
+#lr_bin = 0.00001
+clip = 1e10
 
-data_loaders = (train_loader, valid_loader, test_loader)
+training_tuple = [(1e-3, 10), (5e-4, 20),
+                  (1e-4, 30)]
 
-binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
-    = attention_model_training(data_loaders,
-                               text_hyperparameters,
-                               audio_hyperparameters,
-                               EPOCHS_bin, lr_bin, clip)
-# Printing Learning Curves
-learn_curves(bin_valid_losses, bin_train_losses, "Attention_Loss")
+counter = 0
+for lr_bin, EPOCHS_bin in training_tuple:
+    data_loaders = (train_loader, valid_loader, test_loader)
+
+    binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
+        = attention_model_training(data_loaders,
+                                   text_hyperparameters,
+                                   audio_hyperparameters,
+                                   EPOCHS_bin, lr_bin, clip)
+    # Printing Learning Curves
+    counter +=1
+    learn_curves(bin_valid_losses, bin_train_losses,
+                 "Attention_Loss"+str(counter))
 
 
 print("kapakipoooooooooooooo")
