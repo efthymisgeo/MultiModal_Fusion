@@ -280,3 +280,91 @@ def eval_2_class_model(dataloader, model, loss_function):
     y = flatten_list(y)
 
     return running_loss / index, (y_predicted, y)
+
+
+##############################################################
+###### GEOPAR'S ATTENTION TRAIN EVAL IMPLEMENTATION
+##############################################################
+
+def train_attention_model(_epoch, clip, dataloader,
+                          model, loss_function, optimizer):
+    # enable train mode
+    model.train()
+    # initialize epoch's loss
+    running_loss = 0.0
+
+    for index, batch in enumerate(dataloader,1):
+        (covarep, _), (glove, lengths), labels = batch
+        # we assume batch already in correct device through dataloader
+
+        # sort fetaures per length for packing
+        lengths, perm = torch.sort(lengths, descending=True)
+        glove = glove[perm].float()
+        covarep = covarep[perm].float()
+        labels = labels[perm].view(-1,1).float()
+
+        # feedforward pass
+        model.zero_grad()
+        # get model prediction
+        y_pred = model(covarep, glove, lengths)
+        # compute loss
+        loss = loss_function(y_pred, labels)
+        # backward pass: compute gradient wrt model parameters
+        loss.backward()
+        # clip gradients
+        #_ = torch.nn.utils.clip_grad_value_(model.parameters(), clip)
+        # update weights
+        optimizer.step()
+        running_loss += loss.item()
+        # print statistics
+        progress(loss=loss.item(),
+                 epoch=_epoch,
+                 batch=index,
+                 batch_size=dataloader.batch_size,
+                 dataset_size=len(dataloader.dataset))
+
+    return running_loss / index
+
+
+def eval_attention_model(dataloader, model, loss_function):
+    # IMPORTANT: switch to eval mode
+    model.eval()
+    running_loss = 0.0
+
+
+    y_predicted = []  # the predicted labels
+    y = []  # the gold labels
+    # we don't want to keep gradients so everything under
+    # torch.no_grad()
+    with torch.no_grad():
+        for index, batch in enumerate(dataloader):
+
+            (covarep, _), (glove, lengths), labels = batch
+
+            # sort fetaures per length for packing
+            lengths, perm = torch.sort(lengths, descending=True)
+            glove = glove[perm].float()
+            covarep = covarep[perm].float()
+            labels = labels[perm].view(-1, 1).float()
+
+            y_hat = model(covarep, glove, lengths)
+            # We compute the loss to compare train/test we dont backpropagate in test time
+            loss = loss_function(y_hat, labels)
+            # make predictions (class = argmax of posteriors)
+            probs = torch.sigmoid(y_hat)
+            #sntmnt_class = torch.argmax(y_hat, dim=1)
+            sntmnt_class = torch.ge(probs,0.5).int()
+            # collect the predictions, gold labels and batch loss
+            pred = to_numpy(sntmnt_class)
+
+            labels = to_numpy(labels.int())
+
+            y_predicted.append(pred)
+            y.append(labels)
+
+            running_loss += loss.item()
+
+    y_predicted = flatten_list(y_predicted)
+    y = flatten_list(y)
+
+    return running_loss / index, (y_predicted, y)

@@ -15,6 +15,7 @@ from utils.pytorch_dl import MModalDataset
 from utils.torch_dataloader import MultiModalDataset
 from utils.model_dataloader import MOSI_Dataset, MOSI_Binary_Dataset
 
+from experiments.binary_attention import attention_model_training
 from experiments.binary_classification import binary_model_training
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
@@ -102,27 +103,23 @@ audio_hyperparameters = [input_size, hidden_size,
                         attn_layers, attn_dropout,
                         attn_nonlinearity, task]
 '''
-#########################################
+################################################################
 # Training Text RNN Models
-########################################
-drop = [0.0, 0.1, 0.5]
-EPOCHS_ = [120, 120, 120] 
-lr_t = 0.00001
-for i,drop_i in enumerate(drop):
-    #lr_t = 0.00001
-    print("###############################################")
-    print("Started training model no ", i)
-    data_loaders = (train_loader, valid_loader, test_loader)
-    EPOCHS_t = EPOCHS_[i]
-    text_hyperparameters[4] = drop_i
-    text_rnn, text_accuracies, valid_losses, train_losses = text_rnn_pretraining(data_loaders,
-                                                                                 text_hyperparameters,
-                                                                                 EPOCHS_t, lr_t)
+################################################################
+#drop = [0.0, 0.1, 0.5]
+#EPOCHS_ = [120, 120, 120]
+#lr_t = 0.00001
 
-    # Saving Learning Curves
-    learn_curves(valid_losses, train_losses, "TextRNN_Loss_drop"+str(i))
-    print("Finished training model no ", i)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+print("###############################################")
+data_loaders = (train_loader, valid_loader, test_loader)
+EPOCHS_t = 110
+lr_t = 0.00001
+text_rnn, text_accuracies, valid_losses, train_losses = \
+    text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
+
+# Saving Learning Curves
+learn_curves(valid_losses, train_losses, "TextRNN_Loss")
+
 # save model metadata
 text_rnn_metadata = {"accuracy": text_accuracies,
                      "valid_loss": valid_losses,
@@ -132,12 +129,12 @@ text_rnn_metadata = {"accuracy": text_accuracies,
 pickle_save("text_rnn.p", text_rnn_metadata)
 
 
-###########################################
+####################################################################
 # Training Audio RNN Model
-###########################################
+####################################################################
 
-EPOCHS_a = 130
-lr_a = 0.00001
+EPOCHS_a = 150
+lr_a = 0.0001
 data_loaders = (train_loader, valid_loader, test_loader)
 
 audio_rnn, audio_accuracies, valid_losses, train_losses\
@@ -155,42 +152,55 @@ audio_rnn_metadata = {"accuracy": audio_accuracies,
 # save metadata dictionaries
 pickle_save("audio_rnn.p", audio_rnn_metadata)
 '''
-##########################################
+####################################################################
 # Save/Load models
-##########################################
-
+####################################################################
+'''
 # SAVING MODE
 # save model dictionary to PATH
 rnn_path = os.path.abspath("rnn_metadata")
 TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.py")
 AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.py")
 
-'''
+
 # always tranfer to cpu for interuser compatibility
 model = text_rnn.to("cpu")
 torch.save(model.state_dict(), TEXT_RNN_PATH)
 
 model = audio_rnn.to("cpu")
 torch.save(model.state_dict(), AUDIO_RNN_PATH)
+
+
+
 '''
+
+
+
+
+
+####################################################################
+## timestep attention
+####################################################################
+
+
 
 
 ###################################################################
 ###                     BINARY TASK
 ###################################################################
-EPOCHS_bin = 100
-lr_bin = 0.0001
+EPOCHS_bin = 50
+lr_bin = 0.001
 #clip_bin_grad = 500
 
 data_loaders = (train_loader, valid_loader, test_loader)
 
 binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
-    = binary_model_training(data_loaders,
-                            text_hyperparameters,
-                            audio_hyperparameters,
-                            EPOCHS_bin, lr_bin, clip)
+    = attention_model_training(data_loaders,
+                               text_hyperparameters,
+                               audio_hyperparameters,
+                               EPOCHS_bin, lr_bin, clip)
 # Printing Learning Curves
-learn_curves(bin_valid_losses, bin_train_losses, "Binary_Loss")
+learn_curves(bin_valid_losses, bin_train_losses, "Attention_Loss")
 
 
 print("kapakipoooooooooooooo")
