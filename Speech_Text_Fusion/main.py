@@ -29,13 +29,13 @@ print(DEVICE)
 N = 200 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-dataset = synthetic_dataset(N)
+#dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-#dataset = MOSI_Binary_Dataset()
+dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -62,12 +62,12 @@ input_size = 300 # glove size
 hidden_size = 64 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
-dropout = 0.0
-architecture = 'GRU'
+dropout = 0.2
+architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.05
+attn_dropout = 0.2
 attn_nonlinearity = 'tanh'
 
 text_hyperparameters = [input_size, hidden_size,
@@ -86,12 +86,12 @@ input_size = 74 # covarep size
 hidden_size = 19 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
-dropout = 0.0
-architecture = 'GRU'
+dropout = 0.2
+architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.05
+attn_dropout = 0.2
 attn_nonlinearity = 'tanh'
 
 clip = 200.0
@@ -190,7 +190,7 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 EPOCHS_bin = 50
 lr_bin = 0.001
-clip = 200
+clip = 200.0
 
 data_loaders = (train_loader, valid_loader, test_loader)
 

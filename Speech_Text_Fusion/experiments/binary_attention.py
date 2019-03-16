@@ -85,11 +85,11 @@ def attention_model_training(data_loaders, text_params, audio_params,
         batch_accuracies.append(batch_accuracy)
 
 
-    # evaluate performance on test set
-    test_loss, (y_test_pred, y_test_gold) = \
-        eval_attention_model(test_loader, attn_model, criterion)
+        # evaluate performance on test set
+        test_loss, (y_test_pred, y_test_gold) = \
+            eval_attention_model(test_loader, attn_model, criterion)
 
-    print("Test Set Accuracy is ", accuracy_score(y_test_gold,
+        print("Test Set Accuracy is ", accuracy_score(y_test_gold,
                                                   y_test_pred))
 
     return (attn_model, batch_accuracies, valid_losses, train_losses)
