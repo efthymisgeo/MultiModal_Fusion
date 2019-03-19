@@ -71,6 +71,7 @@ def binary_model_training(data_loaders, text_params, audio_params,
 
         valid_loss, (y_valid_pred, y_valid_gold) = \
             eval_2_class_model(valid_loader, bin_model, criterion)
+        print("Validation Loss at epoch", epoch, " is ", valid_loss)
         # get batch accuracies
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
         print('Train accuracy at epoch ', epoch,

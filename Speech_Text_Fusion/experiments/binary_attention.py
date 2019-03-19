@@ -74,6 +74,7 @@ def attention_model_training(data_loaders, text_params, audio_params,
 
         valid_loss, (y_valid_pred, y_valid_gold) = \
             eval_attention_model(valid_loader, attn_model, criterion)
+        print("Valid Loss at epoch: ", epoch, " is ", valid_loss)
         # get batch accuracies
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
         print('Train accuracy at epoch ', epoch,
