@@ -4,11 +4,12 @@ from config import BATCH_SIZE, MAX_LEN, DEVICE
 
 from models.Text_Rnn import Text_RNN
 from models.Fused_Attention import Attn_Fusion
+from models.Mul_Attn import Mul_Fusion
 from models.TensorFusionNetwork import TFN
 
 class Hierarchy_Attn(nn.Module):
 
-    def __init__(self, text_params, audio_params, post_fusion_dropout=0.1,
+    def __init__(self, text_params, audio_params, p_drop=0.15,
                  post_tfn_subnet=128):
         super(Hierarchy_Attn, self).__init__()
 
@@ -18,46 +19,143 @@ class Hierarchy_Attn(nn.Module):
         # define audio recurrent subnet
         self.audio_rnn = Text_RNN(*audio_params)
 
-        # define 1st attention level
+        # define cat-fusion attention level
         text_dim_tuple, audio_dim_tuple = \
             self.get_rnn_tuples(text_params[1], audio_params[1])
         self.fusion_net = Attn_Fusion(text_dim_tuple,
                                       audio_dim_tuple)
+
+        # define mul-fusion layer
+        self.mul_fusion = Mul_Fusion(text_dim_tuple,
+                                     audio_dim_tuple)
+
         # get text hidden size and audio hidden size
         H = text_dim_tuple[2]
         D = audio_dim_tuple[2]
 
+        # deep representations
+        self.deep_audio = nn.Sequential(nn.Linear(D,D),
+                                        nn.Dropout(p_drop),
+                                        nn.ReLU(),
+                                        nn.Linear(D,D),
+                                        nn.Dropout(p_drop),
+                                        nn.ReLU())
+
+        self.deep_text = nn.Sequential(nn.Linear(H,H),
+                                       nn.ReLU(),
+                                       nn.Linear(H,H),
+                                       nn.ReLU())
+        self.deep_fused = nn.Sequential(nn.Linear(D,D),
+                                        nn.Dropout(p_drop),
+                                        nn.ReLU(),
+                                        nn.Linear(D,D),
+                                        nn.Dropout(p_drop),
+                                        nn.ReLU())
+        self.deep_mul = nn.Sequential(nn.Linear(D,D),
+                                      nn.Dropout(p_drop),
+                                        nn.ReLU(),
+                                        nn.Linear(D,D),
+                                      nn.Dropout(p_drop),
+                                      nn.ReLU())
+
         # define representation layers
         self.audio_fused_net = nn.Linear(2*D, D)
-        self.text_fused_net = nn.Linear(H+D, D)
-        self.deep_fused_net = nn.Linear(2*D, D)
+
+        self.text_fused_net = nn.Sequential(nn.Linear(H+D,H//2),
+                                            nn.Linear(H//2, D))
+
+        self.text_mul_net = nn.Sequential(nn.Linear(H+D, H),
+                                          nn.Linear(H, H//2),
+                                          nn.Linear(H//2 ,D))
+
+        self.audio_mul_net = nn.Sequential(nn.Linear(2*D, D),
+                                           nn.Linear(D, D))
+
+        self.cat_audio_net = nn.Linear(2*D, D)
+
+        self.cat_text_net = nn.Sequential(nn.Linear(H+D, H//2),
+                                          nn.Linear(H//2, D))
+
+        self.mul_cat_net = nn.Sequential(nn.Linear(H+3*D,H),
+                                         nn.Linear(H,D),
+                                         nn.Linear(D, D))
+
+        self.deep_cat_net = nn.Sequential(nn.Linear(2*D,D),
+                                          nn.Linear(D,D))
+
+        self.deep_mul_net = nn.Sequential(nn.Linear(2*D,D),
+                                          nn.Linear(D,D))
 
         # define dense layers
-        self.lin_1 = nn.Linear(H+5*D, D)
-        self.lin_2 = nn.Linear(D, D)
+        cat_size = 4*D + 2*H
+        self.dense = nn.Sequential(nn.Linear(cat_size,cat_size//2),
+                                   nn.Dropout(p_drop),
+                                   nn.ReLU(),
+                                   nn.Linear(cat_size//2,H),
+                                   nn.Dropout(p_drop),
+                                   nn.ReLU(),
+                                   nn.Linear(H, D),
+                                   nn.Dropout(p_drop),
+                                   nn.ReLU(),
+                                   nn.Linear(D,D),
+                                   nn.Dropout(p_drop),
+                                   nn.ReLU())
 
         # modality attention layers
-        self.audio_attn = nn.Sequential(nn.Linear(D, D),
-                                        nn.Linear(D, 1))
-        self.text_attn = nn.Sequential(nn.Linear(H, D),
-                                        nn.Linear(D, 1))
-        self.fused_attn = nn.Sequential(nn.Linear(D, D),
-                                        nn.Linear(D, 1))
-        self.a_fused_attn = nn.Sequential(nn.Linear(D, D),
-                                        nn.Linear(D, 1))
-        self.t_fused_attn = nn.Sequential(nn.Linear(D, D),
-                                        nn.Linear(D, 1))
-        self.deep_fused_attn = nn.Sequential(nn.Linear(D, D),
-                                        nn.Linear(D, 1))
 
+        ##############################################
+        ## h,g,f,m with tf,tm - af,am - tf,af - tm,am
+        ##############################################
+        self.audio_attn = nn.Sequential(nn.Linear(2*D, D),
+                                        nn.Linear(D, D//2),
+                                        nn.Linear(D//2, 1))
+        self.text_attn = nn.Sequential(nn.Linear(2 * D, D),
+                                       nn.Linear(D, D//2),
+                                       nn.Linear(D//2, 1))
+        self.fused_attn = nn.Sequential(nn.Linear(2 * D, D),
+                                       nn.Linear(D, D // 2),
+                                       nn.Linear(D // 2, 1))
+        self.mul_attn = nn.Sequential(nn.Linear(2 * D, D),
+                                       nn.Linear(D, D // 2),
+                                       nn.Linear(D // 2, 1))
+
+        '''
+        self.text_attn = nn.Sequential(nn.Linear(H, H//2),
+                                       nn.Linear(H//2, H//4),
+                                       nn.Linear(H//4, 1))
+        
+        self.fused_attn = nn.Sequential(nn.Linear(D, D//2),
+                                        nn.Linear(D//2, 1))
+
+        self.mul_attn = nn.Sequential(nn.Linear(D, D//2),
+                                      nn.Linear(D//2, 1))
+
+        self.a_fused_attn = nn.Sequential(nn.Linear(D, D//2),
+                                          nn.Linear(D//2, 1))
+
+        self.t_fused_attn = nn.Sequential(nn.Linear(D, D//2),
+                                          nn.Linear(D//2, 1))
+
+        self.a_mul_attn = nn.Sequential(nn.Linear(D, D//2),
+                                        nn.Linear(D//2, 1))
+
+        self.t_mul_attn = nn.Sequential(nn.Linear(D, D//2),
+                                        nn.Linear(D//2, 1))
+
+        self.mul_cat_attn = nn.Sequential(nn.Linear(D, D//2),
+                                          nn.Linear(D//2, 1))
+
+        self.deep_cat_attn = nn.Sequential(nn.Linear(D, D//2),
+                                           nn.Linear(D//2, 1))
+
+        self.deep_mul_attn = nn.Sequential(nn.Linear(D, D//2),
+                                           nn.Linear(D//2, 1))
+
+        '''
         self.softmax = nn.Softmax(dim=-1)
 
-        # define activation layers
-        self.activ_1 = nn.ReLU()
-        self.activ_2 = nn.ReLU()
-
         # map according to task
-        self.lin_3 = nn.Linear(D,1)
+        self.mapping = nn.Linear(D,1)
 
 
 
@@ -79,52 +177,121 @@ class Hierarchy_Attn(nn.Module):
         # audio rnn
         _, A, hidden_a, weighted_a = self.audio_rnn(covarep, lengths)
 
-        # fused attention subnetwork
-        F, weighted_fusion = self.fusion_net(hidden_t, weighted_t, hidden_a,
-                                             weighted_a,lengths)
+        # cat-fusion attention subnetwork
+        F, weighted_fusion = self.fusion_net(hidden_t,
+                                             weighted_t,
+                                             hidden_a,
+                                             weighted_a,
+                                             lengths)
+
+        # mul-fusion attention network
+        M, _ = self.mul_fusion(hidden_t, weighted_t, hidden_a,
+                               weighted_a, lengths)
+
+
+        # dense representations
+        deep_A = self.deep_audio(A)
+        deep_T = self.deep_text(T)
+        F = self.deep_fused(F)
+        M = self.deep_mul(M)
+
+        # concatenate features
+        representations_list = [A, T, deep_A, deep_T, F, M]
+
+
+        '''
         # concatenate features
         # audio-fused
         A_F = torch.cat((A, F), 1)
         # text-fused
         T_F = torch.cat((T, F), 1)
+        # audio-mul
+        A_M = torch.cat((A, M), 1)
+        # text-mul
+        T_M = torch.cat((T, M), 1)
+        # cat-mul
+        #F_M = torch.cat((A, T, F, M), 1)
 
         # extract fused representations
+        #deep_fm = self.mul_cat_net(F_M)
+        
         deep_af = self.audio_fused_net(A_F)
         deep_tf = self.text_fused_net(T_F)
 
+        deep_am = self.audio_mul_net(A_M)
+        deep_tm = self.text_mul_net(T_M)
+
+        a_attn = torch.cat((deep_af, deep_am), 1)
+        t_attn = torch.cat((deep_tf, deep_tm), 1)
+        f_attn = torch.cat((deep_tf, deep_tm), 1)
+        m_attn = torch.cat((deep_af, deep_am), 1)
+
+        # cat deep fused representations
+        #AF_TF = torch.cat((deep_af, deep_tf), 1)
+        #AM_TM = torch.cat((deep_am, deep_tm), 1)
+
         # extract deep fused representations
-        AF_TF = torch.cat((deep_af, deep_tf), 1)
+        #deep_cat = self.deep_cat_net(AF_TF)
+        #deep_mul = self.deep_mul_net(AM_TM)
 
-        deep_af_tf = self.deep_fused_net(AF_TF)
 
-        representations_list = [A,T,F,deep_af,deep_tf,deep_af_tf]
+        # cat all extracted representations
+
+        
+
+        representations_list = [A,T,F,M]
+
+
+         #                       deep_fm,
+         #                       deep_cat, deep_mul]
+        #representations_list = [A, T, F, M, deep_fm, deep_af,
+        #                        deep_tf, deep_am, deep_tm]
 
         # modality attention
-        audio_energy = self.audio_attn(A)
-        text_energy = self.text_attn(T)
-        fused_energy = self.fused_attn(F)
+        audio_energy = self.audio_attn(a_attn)
+        text_energy = self.text_attn(t_attn)
+        fused_energy = self.fused_attn(f_attn)
+        mul_energy = self.mul_attn(m_attn)
+
+        #fm_energy = self.mul_cat_attn(deep_fm)
+
+        # VERSION 3c
+        
         a_fused_energy = self.a_fused_attn(deep_af)
         t_fused_energy = self.t_fused_attn(deep_tf)
-        deep_fused_energy = self.deep_fused_attn(deep_af_tf)
 
-        energies_list = [audio_energy, text_energy, fused_energy,
-                         a_fused_energy, t_fused_energy, deep_fused_energy]
+        a_mul_energy = self.a_mul_attn(deep_am)
+        t_mul_energy = self.t_mul_attn(deep_tm)
+        
+        #deep_cat_energy = self.deep_cat_attn(deep_cat)
+        #deep_mul_energy = self.deep_mul_attn(deep_mul)
+
+        # version 3c
+        
+        energies_list = [a_fused_energy, t_fused_energy,
+                         a_mul_energy, t_mul_energy]
+    
+
+        energies_list = [audio_energy, text_energy,
+                         fused_energy, mul_energy]
+
 
         energies = torch.cat(energies_list, 1)
         energies = self.softmax(energies)
 
         for idx, rep in enumerate(representations_list):
-            representations_list[idx] = torch.mul(rep, energies[:,idx].unsqueeze(-1).expand_as(rep))
+            representations_list[idx] = \
+                torch.mul(rep,
+                          energies[:,idx].unsqueeze(-1).expand_as(rep))
 
-
+        '''
         # concatenate all existing representations
-        deep_representation = torch.cat(representations_list, 1)
+        deep_representations = torch.cat(representations_list, 1)
 
         # dense layers
-        representations = self.activ_1(self.lin_1(deep_representation))
-        representations = self.activ_2(self.lin_2(representations))
+        representations = self.dense(deep_representations)
 
         # project to task space
-        logits = self.lin_3(representations)
+        logits = self.mapping(representations)
 
         return logits

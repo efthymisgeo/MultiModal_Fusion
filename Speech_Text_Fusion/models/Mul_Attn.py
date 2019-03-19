@@ -1,10 +1,8 @@
-from torch import nn, torch
-from torch.autograd import Variable
-from config import DEVICE, MAX_LEN
+from config import DEVICE, MAX_LEN, BATCH_SIZE
 
 ###########################################
-## Generalised Attention Mechanism  #######
-## Fuses both representations and other
+## Multiplication Attention Mechanism
+## Multiplies both representations with other
 ## already extracted attention weights
 ###########################################
 
@@ -12,7 +10,6 @@ from config import DEVICE, MAX_LEN
 from torch import nn, torch
 from torch.autograd import Variable
 
-from config import DEVICE
 
 
 class SelfAttention(nn.Module):
@@ -106,7 +103,7 @@ class SelfAttention(nn.Module):
 ##### Fine Tuning Attention Fusion Mechanism ####################
 #################################################################
 
-class Attn_Fusion(nn.Module):
+class Mul_Fusion(nn.Module):
     def __init__(self, text_size, audio_size, layers=1,
                  fusion_size=38, attention_size=68):
         '''
@@ -124,18 +121,19 @@ class Attn_Fusion(nn.Module):
             fused_a : (B,K) fusion attentions
         '''
 
-        super(Attn_Fusion, self).__init__()
+        super(Mul_Fusion, self).__init__()
 
         # get batch size, max_len, hidden_size
         B, K, H_t = text_size
         _, _, H_a = audio_size
 
-        W = min(H_t, H_a)  # should be H_a
+        D = min(H_t, H_a)  # should be H_a
+        H = max(H_t, H_a)  # should be H_t
 
-        # mapping (H_t + H_a)*MAX_LEN --> W*MAX_LEN
-        self.dense = nn.Linear(H_t+H_a, W)
+        # mapping H --> D
+        self.dense = nn.Linear(H, D)
         # generalized attention module
-        self.attn = SelfAttention(W, batch_first=True, layers=layers)
+        self.attn = SelfAttention(D, batch_first=True, layers=layers)
 
     @staticmethod
     def weighted_timestep(hidden, weights):
@@ -143,28 +141,43 @@ class Attn_Fusion(nn.Module):
                                weights.unsqueeze(-1).expand_as(hidden))
         return weighted_h
 
+    @staticmethod
+    def pad_mul(audio_h, text_h):
+        pad_size = text_h.size(2) - audio_h.size(2)
+        real_len = text_h.size(1)
+        batch_size = text_h.size(0)
+
+        ones = Variable(torch.ones(batch_size,
+                                   real_len,
+                                   pad_size)).detach()
+        ones = ones.to(DEVICE)
+        audio_h = torch.cat((audio_h, ones), 2)
+
+        return(torch.mul(audio_h, text_h))
+
     def forward(self, h_text, w_text, h_audio, w_audio, lengths):
         '''
         INPUTS:
-            h_text:
-            w_text:
-            h_audio:
-            w_audio:
-            lengths:
+            h_text: [B,M,H]
+            w_text: [B,M]
+            h_audio: [B,M,D]
+            w_audio: [B,M]
+            lengths: [B,M]
         OUTPUTS:
         '''
 
         # get weighted representations
-        text_weighted = self.weighted_timestep(h_text, w_text)
-        audio_weighted = self.weighted_timestep(h_audio, w_audio)
+        #text_weighted = self.weighted_timestep(h_text, w_text)
+        #audio_weighted = self.weighted_timestep(h_audio, w_audio)
 
-        # cat features
-        fused_timestep = torch.cat((text_weighted,
-                                    audio_weighted), 2)
+        # Hadamard Product
+        mul_fused = self.pad_mul(h_audio, h_text)
+
         # linear projection
-        h_fused = self.dense(fused_timestep)
+        mul_fused = self.dense(mul_fused)
 
         # apply generalized attention
-        fusion_representation, w_fusion = self.attn(h_fused, lengths)
+        fused_representation, w_fusion = self.attn(mul_fused,
+                                                    lengths)
 
-        return fusion_representation, w_fusion
+        return fused_representation, w_fusion

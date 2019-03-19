@@ -15,7 +15,8 @@ from sklearn.metrics import accuracy_score
 ##############################################################
 
 def attention_model_training(data_loaders, text_params, audio_params,
-                             EPOCHS, learning_rate=0.001, clip =50.0):
+                             EPOCHS, learning_rate=0.001, clip =50.0,
+                             p_drop = 0.15, L2_reg = 0.0):
     '''
     INPUTS:
     data_loaders : 3-len tuple that contains
@@ -34,14 +35,16 @@ def attention_model_training(data_loaders, text_params, audio_params,
         trains model for given number of EPOCHS
     '''
     # model = audio_rnn
-    attn_model = Hierarchy_Attn(text_params, audio_params).to(DEVICE)
+    attn_model = Hierarchy_Attn(text_params, audio_params,
+                                p_drop).to(DEVICE)
     print(attn_model)
 
     parameters = attn_model.parameters()
     # get only trainable parameters
     # parameters = [params for params in atnn_model.parameters() if
     #              params.requires_grad==True]
-    optimizer = Adam(parameters, lr=learning_rate)
+    optimizer = Adam(parameters, lr=learning_rate,
+                     weight_decay= L2_reg)
 
     criterion = nn.BCEWithLogitsLoss()
 

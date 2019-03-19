@@ -29,13 +29,13 @@ print(DEVICE)
 N = 200 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-#dataset = synthetic_dataset(N)
+dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-dataset = MOSI_Binary_Dataset()
+#dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -59,10 +59,10 @@ test_loader = DataLoader(mm_test)
 ######################################
 text_hyperparameters = []
 input_size = 300 # glove size
-hidden_size = 64 # hidden state size
+hidden_size = 64*2 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
-dropout = 0.2
+dropout = 0.25
 architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
@@ -83,10 +83,10 @@ text_hyperparameters = [input_size, hidden_size,
 ######################################
 audio_hyperparameters = []
 input_size = 74 # covarep size
-hidden_size = 19 # hidden state size
+hidden_size = 16*2 # hidden state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
-dropout = 0.2
+dropout = 0.25
 architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
@@ -190,20 +190,31 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 #EPOCHS_bin = 80
 #lr_bin = 0.00001
-clip = 1e10
+clip = 1e12
+#p_drop = 0.15
+#L2_reg = 0.0
 
-training_tuple = [(1e-3, 10), (5e-4, 20),
-                  (1e-4, 30)]
-
+training_tuple = [(1e-3, 10, 0.15, 0.0), (1e-3, 10, 0.25, 0.0),
+                  (1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.25, 1e-5)]
+'''
+                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, ),
+                  (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
+                  (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
+                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
+                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
+                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
+                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14)]
+'''
 counter = 0
-for lr_bin, EPOCHS_bin in training_tuple:
+for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
     data_loaders = (train_loader, valid_loader, test_loader)
 
     binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
         = attention_model_training(data_loaders,
                                    text_hyperparameters,
                                    audio_hyperparameters,
-                                   EPOCHS_bin, lr_bin, clip)
+                                   EPOCHS_bin, lr_bin, clip,
+                                   p_drop, L2_reg)
     # Printing Learning Curves
     counter +=1
     learn_curves(bin_valid_losses, bin_train_losses,

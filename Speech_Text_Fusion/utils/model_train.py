@@ -317,11 +317,12 @@ def train_attention_model(_epoch, clip, dataloader,
         optimizer.step()
         running_loss += loss.item()
         # print statistics
-        progress(loss=loss.item(),
+        progress(loss=running_loss/index,
                  epoch=_epoch,
                  batch=index,
                  batch_size=dataloader.batch_size,
                  dataset_size=len(dataloader.dataset))
+
 
     return running_loss / index
 
