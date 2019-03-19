@@ -29,13 +29,13 @@ print(DEVICE)
 N = 200 # instances of synthetic dataset
 task = "Binary"
 approach = 'sequential'
-dataset = synthetic_dataset(N)
+#dataset = synthetic_dataset(N)
 ###############################################
 # PyTorch Dataloader
 ###############################################
 
 # load MOSI
-#dataset = MOSI_Binary_Dataset()
+dataset = MOSI_Binary_Dataset()
 
 # load mosi
 mm_dset = MultiModalDataset(dataset, task, approach)
@@ -46,6 +46,12 @@ l = len(mm_dset)
 # split dataset to train-valid-test
 test_size = int(0.2*l)
 train_size = l - 2*test_size
+
+# reproducability
+if DEVICE == "cuda:1":
+    torch.backends.cudnn.deterministic = True
+
+torch.manual_seed(64)
 mm_train, mm_valid, mm_test = random_split(mm_dset,
                                            [train_size, test_size, test_size])
 # use dataloaders wrappers
@@ -194,19 +200,15 @@ clip = 1e12
 #p_drop = 0.15
 #L2_reg = 0.0
 
-training_tuple = [(1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.15, 0.0), (1e-3, 10, 0.15, 0.0),
-                  (1e-3, 10, 0.15, 0.0), (1e-3, 10, 0.15, 0.0),
-                  (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
-                  (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
-                  (1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.15, 1e-5),
-                  (1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.15, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5)]
+# golden tuple: (1e-3, 10, 0.15, 1e-5)
+
+training_tuple = [(1e-3, 10, 0.15, 1e-5)]
 '''
+                     (1e-3, 10, 0.15, 0.0),
+                  (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
+                  (1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.15, 1e-5),
+                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5)]
+
                   (1e-3, 10, 0.25, 1e-5), (1e-3, 10, ),
                   (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
                   (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
@@ -217,6 +219,8 @@ training_tuple = [(1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
 '''
 counter = 0
 for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
+    torch.manual_seed(64)
+
     data_loaders = (train_loader, valid_loader, test_loader)
 
     binary_model, binary_accuracies, bin_valid_losses, bin_train_losses \
