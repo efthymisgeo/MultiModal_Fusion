@@ -173,11 +173,11 @@ class Mul_Fusion(nn.Module):
         # Hadamard Product
         mul_fused = self.pad_mul(h_audio, h_text)
 
-        # linear projection
-        mul_fused = self.dense(mul_fused)
+        ######################################################
+        ## linear projection
+        #mul_fused = self.dense(mul_fused)
 
-        # apply generalized attention
-        fused_representation, w_fusion = self.attn(mul_fused,
-                                                    lengths)
+        ## apply generalized attention
+        #fused_representation, w_fusion = self.attn(mul_fused, lengths)
 
-        return fused_representation, w_fusion
+        return mul_fused

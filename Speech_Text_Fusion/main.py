@@ -73,7 +73,7 @@ architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.1
+attn_dropout = 0.25
 attn_nonlinearity = 'tanh'
 
 text_hyperparameters = [input_size, hidden_size,
@@ -97,7 +97,7 @@ architecture = 'LSTM'
 attention_size = hidden_size
 batch_first = True
 attn_layers = 1
-attn_dropout = 0.1
+attn_dropout = 0.25
 attn_nonlinearity = 'tanh'
 
 clip = 200.0
@@ -108,6 +108,31 @@ audio_hyperparameters = [input_size, hidden_size,
                         attention_size, batch_first,
                         attn_layers, attn_dropout,
                         attn_nonlinearity, task]
+
+#######################################
+#### fusion rnn hyperparams       ######
+######################################
+fusion_hyperparameters = []
+input_size = 2*64  # stacked fused size
+hidden_size = 2*16 #*2 # hidden fused state size
+num_layers = 1 # how many stacked rnn's
+bidirectional = True
+dropout = 0.25
+architecture = 'LSTM'
+attention_size = hidden_size
+batch_first = True
+attn_layers = 1
+attn_dropout = 0.25
+attn_nonlinearity = 'tanh'
+
+
+fusion_hyperparameters = [input_size, hidden_size,
+                        num_layers, bidirectional,
+                        dropout, architecture,
+                        attention_size, batch_first,
+                        attn_layers, attn_dropout,
+                        attn_nonlinearity, task]
+
 '''
 ################################################################
 # Training Text RNN Models
@@ -200,9 +225,9 @@ clip = 1e12
 #p_drop = 0.15
 #L2_reg = 0.0
 
-# golden tuple: (1e-3, 10, 0.15, 1e-5)
-
-training_tuple = [(1e-3, 10, 0.15, 1e-5)]
+# golden tuple: (1e-3, 10, 0.15, 1e-5)5
+training_tuple = [(1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
+                  (1e-3, 10, 0.35, 1e-5), (1e-3, 10, 0.5, 1e-5)]
 '''
                      (1e-3, 10, 0.15, 0.0),
                   (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
@@ -227,6 +252,7 @@ for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
         = attention_model_training(data_loaders,
                                    text_hyperparameters,
                                    audio_hyperparameters,
+                                   fusion_hyperparameters,
                                    EPOCHS_bin, lr_bin, clip,
                                    p_drop, L2_reg)
     # Printing Learning Curves

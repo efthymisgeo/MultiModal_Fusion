@@ -161,10 +161,12 @@ class Attn_Fusion(nn.Module):
         # cat features
         fused_timestep = torch.cat((text_weighted,
                                     audio_weighted), 2)
-        # linear projection
-        h_fused = self.dense(fused_timestep)
 
-        # apply generalized attention
-        fusion_representation, w_fusion = self.attn(h_fused, lengths)
+        ################################################
+        ## linear projection
+        #h_fused = self.dense(fused_timestep)
 
-        return fusion_representation, w_fusion
+        ## apply generalized attention
+        #fusion_representation, w_fusion = self.attn(h_fused, lengths)
+
+        return fused_timestep

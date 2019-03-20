@@ -6,11 +6,12 @@ from models.Text_Rnn import Text_RNN
 from models.Fused_Attention import Attn_Fusion
 from models.Mul_Attn import Mul_Fusion
 from models.TensorFusionNetwork import TFN
+from torch.autograd import Variable
 
 class Hierarchy_Attn(nn.Module):
 
-    def __init__(self, text_params, audio_params, p_drop=0.15,
-                 post_tfn_subnet=128):
+    def __init__(self, text_params, audio_params, fusion_params,
+                 p_drop=0.15, post_tfn_subnet=128):
         super(Hierarchy_Attn, self).__init__()
 
         # define text recurrent subnet
@@ -18,6 +19,9 @@ class Hierarchy_Attn(nn.Module):
 
         # define audio recurrent subnet
         self.audio_rnn = Text_RNN(*audio_params)
+
+        # define fusion RNN net
+        self.fusion_rnn = Text_RNN(*fusion_params)
 
         # define cat-fusion attention level
         text_dim_tuple, audio_dim_tuple = \
@@ -33,6 +37,14 @@ class Hierarchy_Attn(nn.Module):
         H = text_dim_tuple[2]
         D = audio_dim_tuple[2]
 
+        # fused reps dimensionality reduction
+        self.fusion_transform = nn.Sequential(nn.Linear(2*H+D, H),
+                                              nn.Dropout(p_drop),
+                                              nn.ReLU(),
+                                              nn.Linear(H, H//2),
+                                              nn.Dropout(p_drop),
+                                              nn.ReLU())
+
         # deep representations
         self.deep_audio = nn.Sequential(nn.Linear(D,D),
                                         nn.Dropout(p_drop),
@@ -45,12 +57,32 @@ class Hierarchy_Attn(nn.Module):
                                        nn.ReLU(),
                                        nn.Linear(H,H),
                                        nn.ReLU())
-        self.deep_fused = nn.Sequential(nn.Linear(D,D),
+        fusion_dim = fusion_params[1]*2
+        self.deep_fused = nn.Sequential(nn.Linear(fusion_dim,fusion_dim),
                                         nn.Dropout(p_drop),
                                         nn.ReLU(),
-                                        nn.Linear(D,D),
+                                        nn.Linear(fusion_dim, fusion_dim),
                                         nn.Dropout(p_drop),
                                         nn.ReLU())
+
+        ################################
+        ## deep feature + reps networks
+        ###############################
+        self.deep_audio_2 = nn.Sequential(nn.Linear(2*D,D),
+                                          nn.Dropout(p_drop),
+                                          nn.ReLU())
+
+        self.deep_text_2 = nn.Sequential(nn.Linear(2*H,H),
+                                         nn.ReLU())
+
+        self.deep_fusion_2 = nn.Sequential(nn.Linear(2*D,D),
+                                           nn.Dropout(p_drop),
+                                           nn.ReLU())
+
+        ###################################
+        ### final fusion layer
+        ###################################
+
         self.deep_mul = nn.Sequential(nn.Linear(D,D),
                                       nn.Dropout(p_drop),
                                         nn.ReLU(),
@@ -87,7 +119,7 @@ class Hierarchy_Attn(nn.Module):
                                           nn.Linear(D,D))
 
         # define dense layers
-        cat_size = 4*D + 2*H
+        cat_size = 2*H+3*D
         self.dense = nn.Sequential(nn.Linear(cat_size,cat_size//2),
                                    nn.Dropout(p_drop),
                                    nn.ReLU(),
@@ -158,6 +190,22 @@ class Hierarchy_Attn(nn.Module):
         self.mapping = nn.Linear(D,1)
 
 
+    @staticmethod
+    def zero_pad(tensor):
+        batch_size = tensor.size(0)
+        real_len = tensor.size(1)
+        dim = tensor.size(2)
+
+        if MAX_LEN > real_len:
+            zeros = \
+                Variable(torch.zeros(batch_size,
+                                    MAX_LEN-real_len,
+                                    dim)).detach()
+            zeros = zeros.to(DEVICE)
+
+            tensor = torch.cat((tensor, zeros), 1)
+
+        return(tensor)
 
     @staticmethod
     def get_rnn_tuples(hidden_text, hidden_audio):
@@ -178,25 +226,39 @@ class Hierarchy_Attn(nn.Module):
         _, A, hidden_a, weighted_a = self.audio_rnn(covarep, lengths)
 
         # cat-fusion attention subnetwork
-        F, weighted_fusion = self.fusion_net(hidden_t,
-                                             weighted_t,
-                                             hidden_a,
-                                             weighted_a,
-                                             lengths)
+        f_i = self.fusion_net(hidden_t, weighted_t,
+                              hidden_a, weighted_a, lengths)
 
         # mul-fusion attention network
-        M, _ = self.mul_fusion(hidden_t, weighted_t, hidden_a,
-                               weighted_a, lengths)
+        m_i = self.mul_fusion(hidden_t, weighted_t, hidden_a,
+                              weighted_a, lengths)
+
+        fused_i = torch.cat((f_i, m_i), 2)
+        fused_i = self.zero_pad(fused_i)
+
+        fused_i = self.fusion_transform(fused_i)
+
+        _, F, _, _ = self.fusion_rnn(fused_i, lengths)
 
 
         # dense representations
-        deep_A = self.deep_audio(A)
-        deep_T = self.deep_text(T)
-        F = self.deep_fused(F)
-        M = self.deep_mul(M)
+        deep_A_ = self.deep_audio(A)
+        deep_T_ = self.deep_text(T)
+        deep_F_ = self.deep_fused(F)
+        #M = self.deep_mul(M)
 
         # concatenate features
-        representations_list = [A, T, deep_A, deep_T, F, M]
+        deep_A = torch.cat((A, deep_A_), 1)
+        deep_T = torch.cat((T, deep_T_), 1)
+        deep_F = torch.cat((F, deep_F_), 1)
+
+        # extract generalized features
+        deep_A = self.deep_audio_2(deep_A)
+        deep_T = self.deep_text_2(deep_T)
+        deep_F = self.deep_fusion_2(deep_F)
+
+        # final feature list
+        representations_list = [A, T, deep_A, deep_T, deep_F]# deep_A, deep_T, deep_F]
 
 
         '''
