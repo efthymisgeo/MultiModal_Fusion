@@ -187,8 +187,9 @@ class Hierarchy_Attn(nn.Module):
         self.softmax = nn.Softmax(dim=-1)
 
         # map according to task
-        self.mapping = nn.Linear(D,1)
-
+        self.fusion_mapping = nn.Linear(D,1)
+        self.audio_mapping = nn.Linear(D,1)
+        self.text_mapping = nn.Linear(H,1)
 
     @staticmethod
     def zero_pad(tensor):
@@ -354,6 +355,8 @@ class Hierarchy_Attn(nn.Module):
         representations = self.dense(deep_representations)
 
         # project to task space
-        logits = self.mapping(representations)
+        logits_fusion = self.fusion_mapping(representations)
+        logits_audio = self.audio_mapping(deep_A)
+        logits_text = self.text_mapping(deep_T)
 
-        return logits
+        return logits_fusion, logits_audio, logits_text

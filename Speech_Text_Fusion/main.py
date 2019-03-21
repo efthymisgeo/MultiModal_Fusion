@@ -226,8 +226,10 @@ clip = 1e12
 #L2_reg = 0.0
 
 # golden tuple: (1e-3, 10, 0.15, 1e-5)5
-training_tuple = [(1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
-                  (1e-3, 10, 0.35, 1e-5), (1e-3, 10, 0.5, 1e-5)]
+training_tuple = [(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5)]
+
+                  #(5e-4, 10, 0.25, 1e-5),
+                  #(1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.35, 1e-5)]
 '''
                      (1e-3, 10, 0.15, 0.0),
                   (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
@@ -243,6 +245,8 @@ training_tuple = [(1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5),
                   (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14)]
 '''
 counter = 0
+# fusion, audio, text
+loss_weights = [1., .3, .5]
 for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
     torch.manual_seed(64)
 
@@ -253,7 +257,9 @@ for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
                                    text_hyperparameters,
                                    audio_hyperparameters,
                                    fusion_hyperparameters,
-                                   EPOCHS_bin, lr_bin, clip,
+                                   EPOCHS_bin,
+                                   loss_weights,
+                                   lr_bin, clip,
                                    p_drop, L2_reg)
     # Printing Learning Curves
     counter +=1
