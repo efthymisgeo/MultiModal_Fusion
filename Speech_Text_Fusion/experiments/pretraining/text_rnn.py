@@ -3,11 +3,11 @@ from torch.optim import Adam
 
 from config import DEVICE, learn_curves
 
-from models.Text_Rnn import Text_RNN
+from models.Text_Rnn import Text_Encoder
 
 from utils.model_train import train_text_rnn, eval_text_rnn
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 
 ######################################
 #### text rnn hyperparams       ######
@@ -52,7 +52,7 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         trains model for given number of EPOCHS
     '''
 
-    model = Text_RNN(*rnn_params)
+    model = Text_Encoder(*rnn_params)
     model.to(DEVICE)
     print(model)
 
@@ -84,6 +84,9 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         valid_loss, (y_valid_pred, y_valid_gold) = eval_text_rnn(valid_loader,
                                                                  model, criterion)
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
+
+        print("Valid Loss is: ", valid_loss)
+
         print('Train Accuracy at epoch ', epoch,
               'is ', batch_accuracy)
         valid_accuracy = accuracy_score(y_valid_gold, y_valid_pred)
@@ -94,11 +97,13 @@ def text_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
         batch_accuracies.append(batch_accuracy)
 
-    # evaluate performance on test set
-    test_loss, (y_test_pred, y_test_gold) = eval_text_rnn(test_loader,
-                                                          model, criterion)
-    print("Test Set Accuracy is ", accuracy_score(y_test_gold,
-                                                  y_test_pred))
+        # evaluate performance on test set
+        test_loss, (y_test_pred, y_test_gold) = eval_text_rnn(test_loader,
+                                                              model, criterion)
+
+        print("Test Set Accuracy is ", accuracy_score(y_test_gold,
+                                                      y_test_pred),
+              " F1 Score is: ", f1_score(y_test_gold, y_test_pred))
 
     return (model, batch_accuracies, valid_losses, train_losses)
 

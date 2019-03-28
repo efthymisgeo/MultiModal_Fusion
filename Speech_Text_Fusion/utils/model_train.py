@@ -71,7 +71,7 @@ def train_text_rnn(_epoch, dataloader, model, loss_function, optimizer):
         optimizer.step()
         running_loss += loss.item()
         # print statistics
-        progress(loss=loss.item(),
+        progress(loss=running_loss/index,
                  epoch=_epoch,
                  batch=index,
                  batch_size=dataloader.batch_size,
@@ -149,7 +149,7 @@ def train_audio_rnn(_epoch, clip, dataloader,
         optimizer.step()
         running_loss += loss.item()
         # print statistics
-        progress(loss=loss.item(),
+        progress(loss=running_loss/index,
                  epoch=_epoch,
                  batch=index,
                  batch_size=dataloader.batch_size,
@@ -351,7 +351,6 @@ def eval_attention_model(dataloader, model, loss_list, loss_weights):
     audio_predicted = []
     text_predicted = []
 
-
     y_predicted = []  # the predicted labels
     y = []  # the gold labels
     # we don't want to keep gradients so everything under
@@ -408,4 +407,4 @@ def eval_attention_model(dataloader, model, loss_list, loss_weights):
     y_predicted = flatten_list(y_predicted)
     y = flatten_list(y)
 
-    return running_total_loss / index, (y_predicted, y)
+    return running_total_loss / index, (y_predicted, y), audio_predicted, text_predicted

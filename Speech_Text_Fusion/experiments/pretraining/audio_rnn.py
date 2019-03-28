@@ -3,11 +3,11 @@ from torch.optim import Adam
 
 from config import DEVICE
 
-from models.Text_Rnn import Text_RNN
+from models.Text_Rnn import Text_Encoder
 
 from utils.model_train import train_audio_rnn, eval_audio_rnn
 
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 
 ######################################
 #### audio rnn hyperparams       ######
@@ -33,7 +33,7 @@ from sklearn.metrics import accuracy_score
 ########################################
 
 def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
-                          learning_rate=0.001, clip =50.0):
+                          learning_rate=0.001, clip =5.0):
     '''
     INPUTS:
     data_loaders : 3-len tuple that contains
@@ -52,7 +52,8 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         trains model for given number of EPOCHS
     '''
     # model = audio_rnn
-    audio_rnn = Text_RNN(*rnn_params)
+    audio_rnn = Text_Encoder(*rnn_params)
+
     audio_rnn.to(DEVICE)
     print(audio_rnn)
 
@@ -85,9 +86,13 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         valid_loss, (y_valid_pred, y_valid_gold) = eval_audio_rnn(valid_loader,
                                                                   audio_rnn,
                                                                   criterion)
+
+        print("Valid Loss is: ", valid_loss)
+
         batch_accuracy = accuracy_score(y_train_gold, y_train_pred)
         print('Train accuracy at epoch ', epoch,
               'is ', batch_accuracy)
+
         valid_accuracy = accuracy_score(y_valid_gold, y_valid_pred)
         print('Valid accuracy at epoch ', epoch,
               'is ', valid_accuracy)
@@ -97,13 +102,15 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
 
         batch_accuracies.append(batch_accuracy)
 
-    # evaluate performance on test set
-    test_loss, (y_test_pred, y_test_gold) = eval_audio_rnn(test_loader,
-                                                           audio_rnn,
-                                                           criterion)
+        # evaluate performance on test set
+        test_loss, (y_test_pred, y_test_gold) = eval_audio_rnn(test_loader,
+                                                               audio_rnn,
+                                                               criterion)
 
-    print("Test Set Accuracy is ", accuracy_score(y_test_gold,
-                                                  y_test_pred))
+
+        print("Test Set Accuracy is ", accuracy_score(y_test_gold,
+                                                      y_test_pred),
+              " F1 Score is: ", f1_score(y_test_gold, y_test_pred))
 
     return (audio_rnn, batch_accuracies, valid_losses, train_losses)
 

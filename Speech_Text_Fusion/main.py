@@ -113,8 +113,8 @@ audio_hyperparameters = [input_size, hidden_size,
 #### fusion rnn hyperparams       ######
 ######################################
 fusion_hyperparameters = []
-input_size = 2*64  # stacked fused size
-hidden_size = 2*16 #*2 # hidden fused state size
+input_size =  2*(2*128+32)  # stacked fused size
+hidden_size = 2*128 #*2 # hidden fused state size
 num_layers = 1 # how many stacked rnn's
 bidirectional = True
 dropout = 0.25
@@ -221,12 +221,11 @@ torch.save(model.state_dict(), AUDIO_RNN_PATH)
 ###################################################################
 #EPOCHS_bin = 80
 #lr_bin = 0.00001
-clip = 1e12
+# 10
 #p_drop = 0.15
 #L2_reg = 0.0
 
-# golden tuple: (1e-3, 10, 0.15, 1e-5)5
-training_tuple = [(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5)]
+
 
                   #(5e-4, 10, 0.25, 1e-5),
                   #(1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.35, 1e-5)]
@@ -244,10 +243,48 @@ training_tuple = [(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15,
                   (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
                   (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14)]
 '''
+# SAVING MODE
+# save model dictionary to PATH
+rnn_path = os.path.abspath("pretrained_models")
+TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.pt")
+AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.pt")
+
+
+torch.manual_seed(99)
+clip=5
+data_loaders = (train_loader, valid_loader, test_loader)
+
+EPOCHS_t = 10
+lr_t = 1e-3
+text_rnn, text_accuracies, valid_losses, train_losses = \
+    text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
+
+# always tranfer to cpu for interuser compatibility
+model = text_rnn.to("cpu")
+torch.save(model.state_dict(), TEXT_RNN_PATH)
+
+'''
+torch.manual_seed(99)
+
+EPOCHS_a = 100
+lr_a = 1e-3
+audio_rnn, audio_accuracies, valid_losses, train_losses\
+    = audio_rnn_pretraining(data_loaders,
+                            audio_hyperparameters,
+                            EPOCHS_a, lr_a, clip)
+
+model = audio_rnn.to("cpu")
+torch.save(model.state_dict(), AUDIO_RNN_PATH)
+
+
+
 counter = 0
-# fusion, audio, text
-loss_weights = [1., .3, .5]
+# golden tuple: (1e-3, 10, 0.15, 1e-5)5
+training_tuple = [(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5)]
+clip = 5
 for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
+    # fusion, audio, text
+    loss_weights = [1., 1., 1.]
     torch.manual_seed(64)
 
     data_loaders = (train_loader, valid_loader, test_loader)
@@ -266,6 +303,8 @@ for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
     learn_curves(bin_valid_losses, bin_train_losses,
                  "Attention_Loss"+str(counter))
 
+
+'''
 
 print("kapakipoooooooooooooo")
 
