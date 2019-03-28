@@ -172,7 +172,7 @@ class Text_Encoder(nn.Module):
         representations = self.deep_text(attn_representations)
         logits = self.dense(representations).view(-1, 1)
 
-        return logits, attn_representations, rnn_out, attn_scores
+        return logits, representations, rnn_out, attn_scores, attn_representations
 
 
 class Audio_Encoder(nn.Module):
@@ -228,9 +228,9 @@ class Audio_Encoder(nn.Module):
             output_size = 5
 
         H = attention_size
-        self.deep_text = nn.Sequential(nn.Linear(H,H),nn.Dropout(0.25),
+        self.deep_text = nn.Sequential(nn.Linear(H,H),nn.Dropout(0.5),
                                        nn.ReLU(),
-                                       nn.Linear(H,H),nn.Dropout(0.25),
+                                       nn.Linear(H,H),nn.Dropout(0.5),
                                        nn.ReLU())
 
         self.dense = nn.Linear(attention_size, output_size)
@@ -262,4 +262,4 @@ class Audio_Encoder(nn.Module):
         representations = self.deep_text(attn_representations)
         logits = self.dense(representations).view(-1, 1)
 
-        return logits, attn_representations, rnn_out, attn_scores
+        return logits, representations, rnn_out, attn_scores, attn_representations

@@ -16,6 +16,7 @@ from sklearn.metrics import accuracy_score, f1_score
 
 def attention_model_training(data_loaders, text_params, audio_params,
                              fusion_params, EPOCHS, loss_weights,
+                             model_paths,
                              learning_rate=0.001,
                              clip =5.0, p_drop = 0.15, L2_reg = 0.0):
     '''
@@ -37,13 +38,14 @@ def attention_model_training(data_loaders, text_params, audio_params,
     '''
     # model = audio_rnn
     attn_model = Hierarchy_Attn(text_params, audio_params,
-                                fusion_params, p_drop).to(DEVICE)
+                                fusion_params, model_paths,
+                                p_drop).to(DEVICE)
     print(attn_model)
 
-    parameters = attn_model.parameters()
+    # parameters = attn_model.parameters()
     # get only trainable parameters
-    # parameters = [params for params in atnn_model.parameters() if
-    #              params.requires_grad==True]
+    parameters = [params for params in attn_model.parameters() if
+                  params.requires_grad==True]
 
     optimizer = Adam(parameters, lr=learning_rate,
                      weight_decay= L2_reg)
@@ -132,7 +134,7 @@ def attention_model_training(data_loaders, text_params, audio_params,
         print("Audio accuracy is: ", audio_accuracy, " F1 score is: ", f1_audio)
         print("Text accuracy is: ", text_accuracy, " F1 score is: ", f1_text)
 
-
+        '''
         loss_weights[0] = loss_weights[0]
         loss_weights[1] = loss_weights[1]*0.5
         loss_weights[2] = loss_weights[2]*0.7
@@ -144,7 +146,7 @@ def attention_model_training(data_loaders, text_params, audio_params,
             loss_weights[2] = 0.5
 
         print(loss_weights)
-
+        '''
     return (attn_model, batch_accuracies, valid_losses, train_losses)
 
 

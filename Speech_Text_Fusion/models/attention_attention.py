@@ -2,7 +2,7 @@ from torch import torch,nn
 
 from config import BATCH_SIZE, MAX_LEN, DEVICE
 
-from models.Text_Rnn import Text_RNN
+from models.Text_Rnn import Text_RNN, Text_Encoder, Audio_Encoder
 from models.Fused_Attention import Attn_Fusion
 from models.Mul_Attn import Mul_Fusion
 from models.TensorFusionNetwork import TFN
@@ -11,14 +11,23 @@ from torch.autograd import Variable
 class Hierarchy_Attn(nn.Module):
 
     def __init__(self, text_params, audio_params, fusion_params,
-                 p_drop=0.15, post_tfn_subnet=128):
+                 paths, p_drop=0.15, post_tfn_subnet=128):
         super(Hierarchy_Attn, self).__init__()
 
-        # define text recurrent subnet
-        self.text_rnn = Text_RNN(*text_params)
+        # define text & audio recurrent subnet
+        self.text_rnn = Text_Encoder(*text_params)
+        self.audio_rnn = Audio_Encoder(*audio_params)
 
-        # define audio recurrent subnet
-        self.audio_rnn = Text_RNN(*audio_params)
+        self.text_rnn.load_state_dict(torch.load(paths["text"]))
+        self.text_rnn.eval()
+        for p in self.text_rnn.parameters():
+            p.requires_grad = False
+
+        self.audio_rnn.load_state_dict(torch.load(paths["audio"]))
+        self.audio_rnn.eval()
+        for p in self.audio_rnn.parameters():
+            p.requires_grad = False
+
 
         # define fusion RNN net
         self.fusion_rnn = Text_RNN(*fusion_params)
@@ -149,10 +158,12 @@ class Hierarchy_Attn(nn.Module):
     def forward(self, covarep, glove, lengths):
         # sorted features accepted as input
         # text rnn
-        _, T, hidden_t, weighted_t = self.text_rnn(glove, lengths)
+        self.text_rnn.eval()
+        logits_text, deep_T, hidden_t, weighted_t, T = self.text_rnn(glove, lengths)
 
         # audio rnn
-        _, A, hidden_a, weighted_a = self.audio_rnn(covarep, lengths)
+        self.audio_rnn.eval()
+        logits_audio, deep_A, hidden_a, weighted_a, A = self.audio_rnn(covarep, lengths)
 
         # cat-fusion attention subnetwork
         f_i = self.fusion_net(hidden_t, weighted_t,
@@ -172,9 +183,9 @@ class Hierarchy_Attn(nn.Module):
         #mid_F = F
 
         # dense representations
-        deep_A = self.deep_audio(A)
+        #deep_A_fusion = self.deep_audio(A)
 
-        deep_T = self.deep_text(T)
+        #deep_T_fusion = self.deep_text(T)
 
         #deep_F = self.deep_fused(mid_F)
 
@@ -190,7 +201,7 @@ class Hierarchy_Attn(nn.Module):
         #deep_F = self.deep_fusion_2(deep_F)
 
         # final feature list
-        representations_list = [deep_A, deep_T, F] # deep_A, deep_T, deep_F]
+        representations_list = [A, T, F] # deep_A, deep_T, deep_F]
 
         # concatenate all existing representations
         deep_representations = torch.cat(representations_list, 1)
@@ -200,7 +211,7 @@ class Hierarchy_Attn(nn.Module):
 
         # project to task space
         logits_fusion = self.fusion_mapping(representations)
-        logits_audio = self.audio_mapping(deep_A)
-        logits_text = self.text_mapping(deep_T)
+        #logits_audio = self.audio_mapping(deep_A)
+        #logits_text = self.text_mapping(deep_T)
 
         return logits_fusion, logits_audio, logits_text

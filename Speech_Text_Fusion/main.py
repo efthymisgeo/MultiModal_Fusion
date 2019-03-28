@@ -249,12 +249,12 @@ rnn_path = os.path.abspath("pretrained_models")
 TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.pt")
 AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.pt")
 
-
+'''
 torch.manual_seed(99)
 clip=5
 data_loaders = (train_loader, valid_loader, test_loader)
 
-EPOCHS_t = 10
+EPOCHS_t = 3
 lr_t = 1e-3
 text_rnn, text_accuracies, valid_losses, train_losses = \
     text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
@@ -263,11 +263,13 @@ text_rnn, text_accuracies, valid_losses, train_losses = \
 model = text_rnn.to("cpu")
 torch.save(model.state_dict(), TEXT_RNN_PATH)
 
-'''
+
+
 torch.manual_seed(99)
 
-EPOCHS_a = 100
-lr_a = 1e-3
+EPOCHS_a = 145
+lr_a = 5e-4
+data_loaders = (train_loader, valid_loader, test_loader)
 audio_rnn, audio_accuracies, valid_losses, train_losses\
     = audio_rnn_pretraining(data_loaders,
                             audio_hyperparameters,
@@ -277,6 +279,10 @@ model = audio_rnn.to("cpu")
 torch.save(model.state_dict(), AUDIO_RNN_PATH)
 
 
+'''
+
+model_paths = {"audio":AUDIO_RNN_PATH,
+               "text":TEXT_RNN_PATH}
 
 counter = 0
 # golden tuple: (1e-3, 10, 0.15, 1e-5)5
@@ -296,6 +302,7 @@ for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
                                    fusion_hyperparameters,
                                    EPOCHS_bin,
                                    loss_weights,
+                                   model_paths,
                                    lr_bin, clip,
                                    p_drop, L2_reg)
     # Printing Learning Curves
@@ -304,7 +311,7 @@ for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
                  "Attention_Loss"+str(counter))
 
 
-'''
+
 
 print("kapakipoooooooooooooo")
 

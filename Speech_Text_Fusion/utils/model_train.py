@@ -313,14 +313,14 @@ def train_attention_model(_epoch, clip,
 
         # compute loss
         f_loss = loss_list[0]
-        a_loss = loss_list[1]
-        t_loss = loss_list[2]
+        #a_loss = loss_list[1]
+        #t_loss = loss_list[2]
 
-        fusion_loss = f_loss(fusion_pred, labels)*loss_weights[0]
-        audio_loss = a_loss(audio_pred, labels)*loss_weights[1]
-        t_loss = t_loss(text_pred, labels)*loss_weights[2]
+        fusion_loss = f_loss(fusion_pred, labels)#*loss_weights[0]
+        #audio_loss = a_loss(audio_pred, labels)#*loss_weights[1]
+        #t_loss = t_loss(text_pred, labels)#*loss_weights[2]
 
-        total_loss =  fusion_loss + audio_loss + t_loss
+        total_loss =  fusion_loss #+ audio_loss + t_loss
 
         # backward pass: compute gradient wrt model parameters
         total_loss.backward()
@@ -370,14 +370,14 @@ def eval_attention_model(dataloader, model, loss_list, loss_weights):
 
             # compute loss
             f_loss = loss_list[0]
-            a_loss = loss_list[1]
-            t_loss = loss_list[2]
+            #a_loss = loss_list[1]
+            #t_loss = loss_list[2]
 
-            fusion_loss = f_loss(f_pred, labels) * loss_weights[0]
-            audio_loss = a_loss(a_pred, labels) * loss_weights[1]
-            t_loss = t_loss(t_pred, labels) * loss_weights[2]
+            fusion_loss = f_loss(f_pred, labels) #* loss_weights[0]
+            #audio_loss = a_loss(a_pred, labels) * loss_weights[1]
+            #t_loss = t_loss(t_pred, labels) * loss_weights[2]
 
-            total_loss = fusion_loss + audio_loss + t_loss
+            total_loss = fusion_loss #+ audio_loss + t_loss
 
             # make predictions (class = argmax of posteriors)
             fusion_probs = torch.sigmoid(f_pred)

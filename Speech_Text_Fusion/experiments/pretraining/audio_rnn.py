@@ -3,7 +3,7 @@ from torch.optim import Adam
 
 from config import DEVICE
 
-from models.Text_Rnn import Text_Encoder
+from models.Text_Rnn import Audio_Encoder
 
 from utils.model_train import train_audio_rnn, eval_audio_rnn
 
@@ -52,7 +52,7 @@ def audio_rnn_pretraining(data_loaders, rnn_params, EPOCHS,
         trains model for given number of EPOCHS
     '''
     # model = audio_rnn
-    audio_rnn = Text_Encoder(*rnn_params)
+    audio_rnn = Audio_Encoder(*rnn_params)
 
     audio_rnn.to(DEVICE)
     print(audio_rnn)
