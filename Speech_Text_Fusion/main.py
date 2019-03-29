@@ -286,7 +286,9 @@ model_paths = {"audio":AUDIO_RNN_PATH,
 
 counter = 0
 # golden tuple: (1e-3, 10, 0.15, 1e-5)5
-training_tuple = [(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5),(1e-3, 10, 0.15, 1e-5)]
+training_tuple = [(5e-4, 10, 0.35, 1e-5),
+                  (1e-3, 10, 0.15, 1e-5),
+                  (1e-3, 10, 0.15, 1e-5)]
 clip = 5
 for lr_bin, EPOCHS_bin, p_drop, L2_reg in training_tuple:
     # fusion, audio, text

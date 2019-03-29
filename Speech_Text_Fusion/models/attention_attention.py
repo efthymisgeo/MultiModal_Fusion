@@ -69,11 +69,14 @@ class Hierarchy_Attn(nn.Module):
                                        nn.Linear(H,H),
                                        nn.ReLU())
         W = fusion_params[1]*2
-        _W = W
+        _W = W+H+D
         self.deep_fused = nn.Sequential(nn.Linear(_W, _W),
                                         nn.Dropout(p_drop),
                                         nn.ReLU(),
                                         nn.Linear(_W, W),
+                                        nn.Dropout(p_drop),
+                                        nn.ReLU(),
+                                        nn.Linear(W, W),
                                         nn.Dropout(p_drop),
                                         nn.ReLU())
 
@@ -167,7 +170,7 @@ class Hierarchy_Attn(nn.Module):
 
         # cat-fusion attention subnetwork
         f_i = self.fusion_net(hidden_t, weighted_t,
-                             hidden_a, weighted_a, lengths)
+                              hidden_a, weighted_a, lengths)
 
         # mul-fusion attention network
         m_i = self.mul_fusion(hidden_t, weighted_t, hidden_a,
@@ -179,15 +182,14 @@ class Hierarchy_Attn(nn.Module):
         ##fused_i = self.fusion_transform(fused_i)
         _, F, _, _ = self.fusion_rnn(fused_i, lengths)
 
-        #mid_F = torch.cat((A,T,F), 1)
-        #mid_F = F
-
         # dense representations
-        #deep_A_fusion = self.deep_audio(A)
+        deep_A_fusion = self.deep_audio(A)
 
-        #deep_T_fusion = self.deep_text(T)
+        deep_T_fusion = self.deep_text(T)
 
-        #deep_F = self.deep_fused(mid_F)
+        mid_F = torch.cat((deep_A_fusion,deep_T_fusion,F), 1)
+
+        deep_F = self.deep_fused(mid_F)
 
         # concatenate features
 
@@ -201,7 +203,7 @@ class Hierarchy_Attn(nn.Module):
         #deep_F = self.deep_fusion_2(deep_F)
 
         # final feature list
-        representations_list = [A, T, F] # deep_A, deep_T, deep_F]
+        representations_list = [deep_A, deep_T, deep_F] # deep_A, deep_T, deep_F]
 
         # concatenate all existing representations
         deep_representations = torch.cat(representations_list, 1)
