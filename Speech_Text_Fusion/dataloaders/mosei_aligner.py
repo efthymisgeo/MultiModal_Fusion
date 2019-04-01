@@ -31,7 +31,6 @@ if directory_check(cmumosei_path):
 
     cmumosei_highlevel.align('glove_vectors', collapse_functions=[average])
     cmumosei_highlevel.add_computational_sequences(mmdatasdk.cmu_mosei.labels, cmumosei_path)
-    size_list = [9216, 74, 47, 300, 1585]
 
     cmumosei_highlevel.align('Opinion Segment Labels')
     deploy_files = {x:x for x in cmumosei_highlevel.computational_sequences.keys()}
