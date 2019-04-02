@@ -23,17 +23,15 @@ def directory_check(dirName):
 
 
 cmumosei_path = '/ssd/speech_data/cmumosei/'
-aligned_path = os.path.join(cmumosei_path, 'aligned')
 
 if directory_check(cmumosei_path):
     # aling CMU-MOSEI
     cmumosei_highlevel = ReadDlData(mmdatasdk.cmu_mosei.highlevel, cmumosei_path)
 
     cmumosei_highlevel.align('glove_vectors', collapse_functions=[average])
-    cmumosei_highlevel.add_computational_sequences(mmdatasdk.cmu_mosei.labels, cmumosei_path)
-    size_list = [9216, 74, 47, 300, 1585]
+    cmumosei_highlevel.add_computational_sequences(mmdatasdk.cmu_mosei.labels, 'cmumosei/')
 
-    cmumosei_highlevel.align('Opinion Segment Labels')
+    cmumosei_highlevel.align('Sentiment Labels')    # 'Emotion Labels' available as well
     deploy_files = {x:x for x in cmumosei_highlevel.computational_sequences.keys()}
-    cmumosei_highlevel.deploy(aligned_path, deploy_files)
-    aligned_cmumosei_highlevel = mmdatasdk.mmdataset(aligned_path)
+    cmumosei_highlevel.deploy('mosei_aligned/', deploy_files)
+    aligned_cmumosei_highlevel = mmdatasdk.mmdataset('mosei_aligned/')
