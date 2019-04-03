@@ -76,8 +76,6 @@ def get_all_hyparameters(task):
     attn_dropout = 0.25
     attn_nonlinearity = 'tanh'
 
-    clip = 200.0
-
     audio_hyperparameters = [input_size, hidden_size,
                              num_layers, bidirectional,
                              dropout, architecture,
@@ -210,6 +208,7 @@ elif len(sys.argv) > 2 and sys.argv[2] == '-pre_audio':
     ####################################################################
     EPOCHS_a = 150
     lr_a = 0.0001
+    clip = 5.0
     data_loaders = (train_loader, valid_loader, test_loader)
 
     audio_rnn, audio_accuracies, valid_losses, train_losses\
