@@ -15,10 +15,7 @@
             python3 main.py -mosei
 """
 import os
-from torch import torch, nn
-from torch.optim import Adam
-import numpy as np
-from random import randint
+from torch import torch
 import sys
 
 from models.Text_Rnn import Text_RNN
@@ -38,6 +35,83 @@ from experiments.binary_classification import binary_model_training
 from experiments.pretraining.audio_rnn import audio_rnn_pretraining
 from experiments.pretraining.text_rnn import text_rnn_pretraining
 
+
+def get_all_hyparameters(task):
+    ##############################
+    #### text rnn hyperparams ####
+    ##############################
+    text_hyperparameters = []
+    input_size = 300  # glove size
+    hidden_size = 64 * 2  # hidden state size
+    num_layers = 1  # how many stacked rnn's
+    bidirectional = True
+    dropout = 0.25
+    architecture = 'LSTM'
+    attention_size = hidden_size
+    batch_first = True
+    attn_layers = 1
+    attn_dropout = 0.25
+    attn_nonlinearity = 'tanh'
+
+    text_hyperparameters = [input_size, hidden_size,
+                            num_layers, bidirectional,
+                            dropout, architecture,
+                            attention_size, batch_first,
+                            attn_layers, attn_dropout,
+                            attn_nonlinearity, task]
+
+    ###############################
+    #### audio rnn hyperparams ####
+    ###############################
+    audio_hyperparameters = []
+    input_size = 74  # covarep size
+    hidden_size = 16 * 2  # hidden state size
+    num_layers = 1  # how many stacked rnn's
+    bidirectional = True
+    dropout = 0.25
+    architecture = 'LSTM'
+    attention_size = hidden_size
+    batch_first = True
+    attn_layers = 1
+    attn_dropout = 0.25
+    attn_nonlinearity = 'tanh'
+
+    clip = 200.0
+
+    audio_hyperparameters = [input_size, hidden_size,
+                             num_layers, bidirectional,
+                             dropout, architecture,
+                             attention_size, batch_first,
+                             attn_layers, attn_dropout,
+                             attn_nonlinearity, task]
+
+    ################################
+    #### fusion rnn hyperparams ####
+    ################################
+    fusion_hyperparameters = []
+    input_size = 2 * (2 * 128 + 32)  # stacked fused size
+    hidden_size = 2 * 128  # *2 # hidden fused state size
+    num_layers = 1  # how many stacked rnn's
+    bidirectional = True
+    dropout = 0.25
+    architecture = 'LSTM'
+    attention_size = hidden_size
+    batch_first = True
+    attn_layers = 1
+    attn_dropout = 0.25
+    attn_nonlinearity = 'tanh'
+
+    fusion_hyperparameters = [input_size, hidden_size,
+                              num_layers, bidirectional,
+                              dropout, architecture,
+                              attention_size, batch_first,
+                              attn_layers, attn_dropout,
+                              attn_nonlinearity, task]
+
+    return text_hyperparameters, audio_hyperparameters, fusion_hyperparameters
+
+
+# Main section of the program
 print(DEVICE)
 
 ###############################################
@@ -51,11 +125,13 @@ approach = 'sequential'
 # PyTorch Dataloader
 ###############################################
 
-if (len(sys.argv) > 1 and sys.argv[1] == '-mosei'):
+text_hyperparameters, audio_hyperparameters, fusion_hyperparameters = get_all_hyparameters(task)
+
+if len(sys.argv) > 1 and sys.argv[1] == '-mosei':
     print(' ===== MOSEI dataset ===== ')
     dataset = MOSEI_Binary_Dataset()
     dataset_flag = 'mosei'
-elif (len(sys.argv) > 1 and sys.argv[1] == '-mosi'):
+elif len(sys.argv) > 1 and sys.argv[1] == '-mosi':
     print(' ===== MOSI dataset ===== ')
     dataset = MOSI_Binary_Dataset()
     dataset_flag = 'mosi'
@@ -86,59 +162,8 @@ train_loader = DataLoader(mm_train, batch_size=BATCH_SIZE, shuffle=True)
 valid_loader = DataLoader(mm_valid)
 test_loader = DataLoader(mm_test)
 
-############################################
-#### text rnn hyperparams and pretraing ####
-############################################
-print(' ----- Pretrain Text classifier ----- ')
-text_hyperparameters = []
-input_size = 300 # glove size
-hidden_size = 64*2 # hidden state size
-num_layers = 1 # how many stacked rnn's
-bidirectional = True
-dropout = 0.25
-architecture = 'LSTM'
-attention_size = hidden_size
-batch_first = True
-attn_layers = 1
-attn_dropout = 0.25
-attn_nonlinearity = 'tanh'
-
-text_hyperparameters = [input_size, hidden_size,
-                        num_layers, bidirectional,
-                        dropout, architecture,
-                        attention_size, batch_first,
-                        attn_layers, attn_dropout,
-                        attn_nonlinearity, task]
-
-#############################################
-#### audio rnn hyperparams and pretraing ####
-#############################################
-print(' ----- Pretrain Audio classifier ----- ')
-audio_hyperparameters = []
-input_size = 74 # covarep size
-hidden_size = 16*2 # hidden state size
-num_layers = 1 # how many stacked rnn's
-bidirectional = True
-dropout = 0.25
-architecture = 'LSTM'
-attention_size = hidden_size
-batch_first = True
-attn_layers = 1
-attn_dropout = 0.25
-attn_nonlinearity = 'tanh'
-
-clip = 200.0
-
-audio_hyperparameters = [input_size, hidden_size,
-                        num_layers, bidirectional,
-                        dropout, architecture,
-                        attention_size, batch_first,
-                        attn_layers, attn_dropout,
-                        attn_nonlinearity, task]
-
-
-if (len(sys.argv) > 2 and sys.argv[2] == '-pre_text'):
-   
+if len(sys.argv) > 2 and sys.argv[2] == '-pre_text':
+    print(' ----- Pretrain Text classifier ----- ')
     ################################################################
     # Training Text RNN Models
     ################################################################
@@ -163,9 +188,6 @@ if (len(sys.argv) > 2 and sys.argv[2] == '-pre_text'):
 
     # save metadata dict
     pickle_save(dataset_flag + "_text_rnn.p", text_rnn_metadata)
-    ####################################################################
-    # Save model
-    ####################################################################
 
     # SAVING MODE
     # save model dictionary to PATH
@@ -175,8 +197,8 @@ if (len(sys.argv) > 2 and sys.argv[2] == '-pre_text'):
     # always tranfer to cpu for interuser compatibility
     model = text_rnn.to("cpu")
     torch.save(model.state_dict(), TEXT_RNN_PATH)
-elif (len(sys.argv) > 2 and sys.argv[2] == '-pre_audio'):
- 
+elif len(sys.argv) > 2 and sys.argv[2] == '-pre_audio':
+    print(' ----- Pretrain Audio classifier ----- ')
     ####################################################################
     # Training Audio RNN Model
     ####################################################################
@@ -199,9 +221,6 @@ elif (len(sys.argv) > 2 and sys.argv[2] == '-pre_audio'):
     # save metadata dictionaries
     pickle_save(dataset_flag + "audio_rnn.p", audio_rnn_metadata)
     
-    ####################################################################
-    # Save model
-    ####################################################################
     # SAVING MODE
     # save model dictionary to PATH
     rnn_path = os.path.abspath("pretrained_models")
@@ -210,30 +229,11 @@ elif (len(sys.argv) > 2 and sys.argv[2] == '-pre_audio'):
     model = audio_rnn.to("cpu")
     torch.save(model.state_dict(), AUDIO_RNN_PATH)
 else:
-    ##########################################################
-    #### fusion rnn hyperparams training and evaluation ######
-    ##########################################################
     print(' ----- Train and Evaluate Fusion model ----- ')
-    fusion_hyperparameters = []
-    input_size =  2*(2*128+32)  # stacked fused size
-    hidden_size = 2*128 #*2 # hidden fused state size
-    num_layers = 1 # how many stacked rnn's
-    bidirectional = True
-    dropout = 0.25
-    architecture = 'LSTM'
-    attention_size = hidden_size
-    batch_first = True
-    attn_layers = 1
-    attn_dropout = 0.25
-    attn_nonlinearity = 'tanh'
+    ####################################################################
+    # Training and Evaluation of Fusion RNN Model
+    ####################################################################
 
-    fusion_hyperparameters = [input_size, hidden_size,
-                            num_layers, bidirectional,
-                            dropout, architecture,
-                            attention_size, batch_first,
-                            attn_layers, attn_dropout,
-                            attn_nonlinearity, task]
-    
     # TODO change model names to prepend 'mosi_' or 'mosei_' 
     rnn_path = os.path.abspath("pretrained_models")
     TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.pt")
@@ -271,64 +271,3 @@ else:
                     "Attention_Loss"+str(counter))
 
 print("Operation completed.")
-
-'''
-
-####################################################################
-## timestep attention
-####################################################################
-
-###################################################################
-###                     BINARY TASK
-###################################################################
-#EPOCHS_bin = 80
-#lr_bin = 0.00001
-# 10
-#p_drop = 0.15
-#L2_reg = 0.0
-
-
-
-                  #(5e-4, 10, 0.25, 1e-5),
-                  #(1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.35, 1e-5)]
-
-                     (1e-3, 10, 0.15, 0.0),
-                  (1e-3, 10, 0.25, 0.0), (1e-3, 10, 0.25, 0.0),
-                  (1e-3, 10, 0.15, 1e-5), (1e-3, 10, 0.15, 1e-5),
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, 0.25, 1e-5)]
-
-                  (1e-3, 10, 0.25, 1e-5), (1e-3, 10, ),
-                  (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
-                  (1e-3, 10), (1e-3, 10),(1e-3, 10), (1e-3, 10),
-                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
-                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
-                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14),
-                  (5e-4, 14), (5e-4, 14), (5e-4, 14), (5e-4, 14)]
-
-torch.manual_seed(99)
-clip=5
-data_loaders = (train_loader, valid_loader, test_loader)
-
-EPOCHS_t = 3
-lr_t = 1e-3
-text_rnn, text_accuracies, valid_losses, train_losses = \
-    text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
-
-# always tranfer to cpu for interuser compatibility
-model = text_rnn.to("cpu")
-torch.save(model.state_dict(), TEXT_RNN_PATH)
-
-
-EPOCHS_a = 145
-lr_a = 5e-4
-data_loaders = (train_loader, valid_loader, test_loader)
-audio_rnn, audio_accuracies, valid_losses, train_losses\
-    = audio_rnn_pretraining(data_loaders,
-                            audio_hyperparameters,
-                            EPOCHS_a, lr_a, clip)
-
-model = audio_rnn.to("cpu")
-torch.save(model.state_dict(), AUDIO_RNN_PATH)
-
-
-'''
