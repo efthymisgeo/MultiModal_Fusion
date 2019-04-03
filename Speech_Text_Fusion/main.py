@@ -140,6 +140,9 @@ else:
     print('Operation ended.')
     sys.exit()
 
+# prefix to be used for saved files
+file_prefix = dataset_flag + "_" + task.lower() + "_"
+
 # load dataset
 mm_dset = MultiModalDataset(dataset, task, approach)
 
@@ -187,12 +190,12 @@ if len(sys.argv) > 2 and sys.argv[2] == '-pre_text':
                         "train_loss": train_losses}
 
     # save metadata dict
-    pickle_save(dataset_flag + "_text_rnn.p", text_rnn_metadata)
+    pickle_save(file_prefix + "text_rnn.p", text_rnn_metadata)
 
     # SAVING MODE
     # save model dictionary to PATH
     rnn_path = os.path.abspath("pretrained_models")
-    TEXT_RNN_PATH = os.path.join(rnn_path, dataset_flag + "_text_rnn_model.pt")
+    TEXT_RNN_PATH = os.path.join(rnn_path, file_prefix + "text_rnn_model.pt")
 
     # always tranfer to cpu for interuser compatibility
     model = text_rnn.to("cpu")
@@ -219,12 +222,12 @@ elif len(sys.argv) > 2 and sys.argv[2] == '-pre_audio':
                         "train_loss": train_losses}
 
     # save metadata dictionaries
-    pickle_save(dataset_flag + "audio_rnn.p", audio_rnn_metadata)
+    pickle_save(file_prefix + "audio_rnn.p", audio_rnn_metadata)
     
     # SAVING MODE
     # save model dictionary to PATH
     rnn_path = os.path.abspath("pretrained_models")
-    AUDIO_RNN_PATH = os.path.join(rnn_path, dataset_flag + "_audio_rnn_model.pt")
+    AUDIO_RNN_PATH = os.path.join(rnn_path, file_prefix + "audio_rnn_model.pt")
 
     model = audio_rnn.to("cpu")
     torch.save(model.state_dict(), AUDIO_RNN_PATH)
@@ -234,10 +237,9 @@ else:
     # Training and Evaluation of Fusion RNN Model
     ####################################################################
 
-    # TODO change model names to prepend 'mosi_' or 'mosei_' 
     rnn_path = os.path.abspath("pretrained_models")
-    TEXT_RNN_PATH = os.path.join(rnn_path, "text_rnn_model.pt")
-    AUDIO_RNN_PATH = os.path.join(rnn_path, "audio_rnn_model.pt")
+    TEXT_RNN_PATH = os.path.join(rnn_path, file_prefix + "text_rnn_model.pt")
+    AUDIO_RNN_PATH = os.path.join(rnn_path, file_prefix + "audio_rnn_model.pt")
 
     model_paths = {"audio":AUDIO_RNN_PATH,
                "text":TEXT_RNN_PATH}

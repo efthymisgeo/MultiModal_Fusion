@@ -62,7 +62,7 @@ def train_text_rnn(_epoch, dataloader, model, loss_function, optimizer):
         # feedforward pass
         model.zero_grad()
         # get model prediction
-        y_pred, _, _, _ = model(glove, lengths)
+        y_pred, _, _, _, _ = model(glove, lengths)
         # compute loss
         loss = loss_function(y_pred, labels)
         # backward pass: compute gradient wrt model parameters
@@ -95,7 +95,7 @@ def eval_text_rnn(dataloader, model, loss_function):
             lengths, perm = torch.sort(lengths, descending=True)
             glove = glove[perm].float()
             labels = labels[perm].view(-1,1)
-            y_hat, _, _, _ = model(glove, lengths)
+            y_hat, _, _, _, _ = model(glove, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
@@ -138,7 +138,7 @@ def train_audio_rnn(_epoch, clip, dataloader,
         # feedforward pass
         model.zero_grad()
         # get model prediction
-        y_pred, _, _, _ = model(covarep, lengths)
+        y_pred, _, _, _, _ = model(covarep, lengths)
         # compute loss
         loss = loss_function(y_pred, labels)
         # backward pass: compute gradient wrt model parameters
@@ -173,7 +173,7 @@ def eval_audio_rnn(dataloader, model, loss_function):
             lengths, perm = torch.sort(lengths, descending=True)
             covarep =covarep[perm].float()
             labels = labels[perm].view(-1,1)
-            y_hat, _, _, _ = model(covarep, lengths)
+            y_hat, _, _, _, _ = model(covarep, lengths)
             # We compute the loss to compare train/test we dont backpropagate in test time
             loss = loss_function(y_hat, labels.float())
             # make predictions (class = argmax of posteriors)
