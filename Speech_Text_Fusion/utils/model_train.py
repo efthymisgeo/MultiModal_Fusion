@@ -127,7 +127,7 @@ def train_audio_rnn(_epoch, clip, dataloader,
     running_loss = 0.0
 
     for index, batch in enumerate(dataloader,1):
-        (covarep, lengths), (_, _), labels = batch
+        (covarep, lengths), _, labels = batch
         # we assume batch already in correct device through dataloader
 
         # sort fetaures per length for packing

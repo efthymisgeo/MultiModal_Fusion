@@ -183,7 +183,7 @@ if len(sys.argv) > 2 and sys.argv[2] == '-pre_text':
         text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
 
     # Saving Learning Curves
-    learn_curves(valid_losses, train_losses, "TextRNN_Loss")
+    learn_curves(valid_losses, train_losses, file_prefix + "TextRNN_Loss")
 
     # save model metadata
     text_rnn_metadata = {"accuracy": text_accuracies,
@@ -216,7 +216,7 @@ elif len(sys.argv) > 2 and sys.argv[2] == '-pre_audio':
                                 audio_hyperparameters,
                                 EPOCHS_a, lr_a, clip)
     # Printing Learning Curves
-    learn_curves(valid_losses, train_losses, "AudioRNN_Loss")
+    learn_curves(valid_losses, train_losses, file_prefix + "AudioRNN_Loss")
 
     #save model metadata
     audio_rnn_metadata = {"accuracy": audio_accuracies,
@@ -272,6 +272,6 @@ else:
         # Printing Learning Curves
         counter +=1
         learn_curves(bin_valid_losses, bin_train_losses,
-                    "Attention_Loss"+str(counter))
+                    file_prefix + "Attention_Loss" + str(counter))
 
 print("Operation completed.")
