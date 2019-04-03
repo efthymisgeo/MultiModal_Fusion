@@ -154,7 +154,7 @@ test_size = int(0.2*l)
 train_size = l - 2*test_size
 
 # reproducability
-if DEVICE == "cuda:1":
+if DEVICE == "cuda:1" or DEVICE == "cuda:0":
     torch.backends.cudnn.deterministic = True
 
 torch.manual_seed(64)
@@ -176,7 +176,10 @@ if len(sys.argv) > 2 and sys.argv[2] == '-pre_text':
 
     print("###############################################")
     data_loaders = (train_loader, valid_loader, test_loader)
-    EPOCHS_t = 110
+    if dataset_flag == 'mosei':
+        EPOCHS_t = 66
+    else:
+        EPOCHS_t = 110
     lr_t = 0.00001
     text_rnn, text_accuracies, valid_losses, train_losses = \
         text_rnn_pretraining(data_loaders, text_hyperparameters, EPOCHS_t, lr_t)
